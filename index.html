@@ -1,1 +1,197 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>متره‌یار</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f5f7fa;--card:#fff;--tx:#1b2430;--mut:#5b6777;--pri:#1565c0;--prc:#fff;--res:#e3f0ff;--bd:#d5dce6;--bg2:#cfe2f7;--gl:rgba(21,101,192,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--card:#1c222b;--tx:#eaeef3;--mut:#9aa6b5;--pri:#64a8ff;--prc:#0b1220;--res:#1d2f47;--bd:#2f3a48;--bg2:#070a0e;--gl:rgba(100,168,255,.08)}}
+:root[data-theme="dark"]{--bg:#12161c;--card:#1c222b;--tx:#eaeef3;--mut:#9aa6b5;--pri:#64a8ff;--prc:#0b1220;--res:#1d2f47;--bd:#2f3a48;--bg2:#070a0e;--gl:rgba(100,168,255,.08)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;min-height:100vh;color:var(--tx);font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;line-height:1.7}
+header{padding:18px 16px 6px;text-align:center}
+h1{margin:0;font-size:24px}
+header p{margin:2px 0 0;color:var(--mut);font-size:14px}
+main{max-width:560px;margin:0 auto;padding:12px 16px 32px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+.tabs button{flex:0 0 auto;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:20px;font:inherit;font-size:14px;cursor:pointer}
+.tabs button.on{background:var(--pri);color:var(--prc);border-color:var(--pri)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-top:10px}
+label{display:block;font-size:14px;margin:10px 0 4px}
+.row{display:flex;align-items:center;gap:8px}
+input{flex:1;width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit;font-size:16px;direction:ltr;text-align:right}
+.u{font-size:13px;color:var(--mut);min-width:64px}
+.go{width:100%;margin-top:16px;padding:12px;border:0;border-radius:12px;background:var(--pri);color:var(--prc);font:inherit;font-size:16px;font-weight:bold;cursor:pointer}
+.res{background:var(--res);border-radius:14px;padding:14px 16px;margin-top:14px}
+.res div{padding:3px 0}
+.tot{margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);font-weight:bold}
+.pr{background:transparent;border:1px solid var(--pri);color:var(--pri);margin-top:10px}
+.note{font-size:12px;color:var(--mut);margin-top:16px;text-align:center}
+@media print{header p,.tabs,#form,.go,.pr,.note{display:none}body{background:#fff;color:#000}.res{background:#fff;border:1px solid #999}}
+.wrap{overflow-x:auto}
+.tb{width:100%;border-collapse:collapse;font-size:13px;text-align:center;margin-top:6px}
+.tb th,.tb td{border:1px solid var(--bd);padding:5px 4px}
+.tb th{background:var(--res)}
+details{border-top:1px solid var(--bd);padding:8px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:bold;padding:4px 0}
+.n{font-size:12px;color:var(--mut);margin:8px 0 0}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background-image:linear-gradient(var(--gl) 1px,transparent 1px),linear-gradient(90deg,var(--gl) 1px,transparent 1px);background-size:28px 28px}
+#sky{position:fixed;left:0;right:0;bottom:0;width:100%;height:240px;z-index:-1;color:var(--pri);opacity:.16;pointer-events:none}
+.card,.tabs button{background:var(--card);background:color-mix(in srgb,var(--card) 90%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tabs button.on{background:var(--pri)}
+.ab{position:relative;overflow:hidden;border-radius:14px;margin:-16px;padding:16px 16px 40px;min-height:440px}
+.ab svg{position:absolute;inset:0;width:100%;height:100%;opacity:.3;z-index:0}
+.ab .tx{position:relative;z-index:1}
+.ab h2{margin:0 0 8px;font-size:20px}
+.ab h3{margin:16px 0 4px;font-size:15px;color:var(--pri)}
+.ab p{margin:4px 0}
+.ab ul,.ab ol{margin:4px 0;padding-right:22px}
+.ab li{margin:2px 0}
+.info{background:var(--res);border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:4px}
+.info details{border:0;padding:6px 0 0}
+.info p{margin:4px 0}
+.tabs button{display:inline-flex;align-items:center;gap:6px}
+.hero{position:relative;overflow:hidden;margin:-16px -16px 14px;padding:20px 16px 52px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff}
+.hero h2{margin:0;font-size:22px}.hero p{margin:4px 0 0;font-size:13px;opacity:.92}
+.hero .sk{position:absolute;bottom:0;left:0;width:100%;height:46px;fill:#fff;opacity:.2}
+.hero .hm{position:absolute;left:14px;top:14px;opacity:.9}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border:1px solid var(--bd);border-radius:12px;background:var(--bg);color:var(--pri);font:inherit;font-size:12px;cursor:pointer}
+.tile span{color:var(--tx)}
+.bn{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bi{width:46px;height:46px;border-radius:12px;background:var(--res);color:var(--pri);display:flex;align-items:center;justify-content:center}
+.bn b{font-size:17px}
+.dg{background:var(--bg);border:1px dashed var(--bd);border-radius:12px;margin:8px 0;padding:6px;color:var(--pri)}
+.dg svg{width:100%;height:auto;display:block;max-height:140px}
+.dg text{font-size:11px;fill:var(--tx);stroke:none}
+@media print{.info{display:none}}
+@media print{body::before,#sky{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<svg id="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true" fill="currentColor"><rect x="0" y="170" width="400" height="30"/><rect x="10" y="120" width="40" height="80"/><rect x="55" y="90" width="30" height="110"/><rect x="90" y="135" width="45" height="65"/><rect x="140" y="70" width="34" height="130"/><rect x="180" y="110" width="40" height="90"/><rect x="262" y="100" width="36" height="100"/><rect x="304" y="140" width="42" height="60"/><rect x="352" y="85" width="38" height="115"/><path d="M228 200V30h5v170zM205 30h95v5h-95zM228 30l-22-14h50zM292 35v28M290 63h5v6h-5z"/><path d="M233 35l59 0-59-14z" opacity=".6"/></svg>
+<header><h1>متره‌یار</h1><p>محاسبه مصالح و برآورد هزینه ساختمان</p></header>
+<main>
+<div class="tabs" id="tabs"></div>
+<div class="card" id="form"></div>
+<div id="out"></div>
+<p class="note">ضریب‌ها تقریبی‌اند؛ پیش از خرید با مشخصات فنی پروژه تطبیق دهید.</p>
+</main>
+<script>
+const nf=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2});
+const fmt=v=>nf.format(v);
+const num=s=>{let t=String(s).trim();'۰۱۲۳۴۵۶۷۸۹'.split('').forEach((c,i)=>{t=t.split(c).join(i)});'٠١٢٣٤٥٦٧٨٩'.split('').forEach((c,i)=>{t=t.split(c).join(i)});t=t.replace(/[٫]/g,'.').replace(/[,،]/g,'');const n=parseFloat(t);return isNaN(n)?0:n};
+const pos=v=>v<0?0:v;
+const C=[
+{t:'خانه',home:true},
+{t:'دیوارچینی',f:[['l','طول دیوار','متر',10],['h','ارتفاع دیوار','متر',3],['o','مساحت بازشوها','متر مربع',0],['p','تعداد در هر متر مربع','عدد',12.5],['w','درصد ضایعات','%',5]],
+ c:v=>{const a=pos(v.l*v.h-v.o);return[['مساحت خالص دیوار',a,'متر مربع'],['تعداد مورد نیاز',Math.ceil(a*v.p*(1+v.w/100)),'عدد']]},pl:'قیمت هر عدد (تومان)',pi:1},
+{t:'بتن‌ریزی',f:[['l','طول','متر',5],['w','عرض','متر',4],['t','ضخامت','سانتی‌متر',15],['c','سیمان در هر متر مکعب','کیلوگرم',300],['x','درصد ضایعات','%',5]],
+ c:v=>{const m=v.l*v.w*v.t/100*(1+v.x/100),k=m*v.c;return[['حجم بتن',m,'متر مکعب'],['سیمان',k,'کیلوگرم'],['کیسه سیمان (۵۰ کیلویی)',Math.ceil(k/50),'کیسه']]},pl:'قیمت هر متر مکعب بتن (تومان)',pi:0},
+{t:'میلگرد',f:[['d','قطر میلگرد','میلی‌متر',12],['l','طول هر شاخه','متر',12],['n','تعداد شاخه','عدد',100]],
+ c:v=>{const pm=v.d*v.d/162,L=v.l*v.n;return[['وزن هر متر',pm,'کیلوگرم'],['وزن کل',pm*L,'کیلوگرم'],['طول کل',L,'متر']]},pl:'قیمت هر کیلوگرم (تومان)',pi:1},
+{t:'کاشی و سرامیک',f:[['a','مساحت سطح','متر مربع',20],['l','طول کاشی','سانتی‌متر',60],['w','عرض کاشی','سانتی‌متر',60],['x','درصد ضایعات','%',10]],
+ c:v=>{const a=v.a*(1+v.x/100),one=v.l*v.w/10000;return[['مساحت با ضایعات',a,'متر مربع'],['تعداد کاشی',one>0?Math.ceil(a/one):0,'عدد']]},pl:'قیمت هر متر مربع (تومان)',pi:0},
+{t:'خاموت',f:[['L','طول المان (تیر/ستون)','متر',4],['s','فاصله خاموت‌ها','سانتی‌متر',15],['b','عرض مقطع','سانتی‌متر',30],['h','ارتفاع مقطع','سانتی‌متر',40],['k','پوشش بتن','سانتی‌متر',4],['d','قطر خاموت','میلی‌متر',8]],
+ c:v=>{const n=Math.floor(v.L*100/(v.s||1))+1,len=(2*(v.b+v.h-4*v.k)+2*v.d)/100,tot=n*len;return[['تعداد خاموت',n,'عدد'],['طول هر خاموت',len,'متر'],['طول کل',tot,'متر'],['وزن کل',tot*v.d*v.d/162,'کیلوگرم']]},n:'فرض: دو قلاب به طول ۱۰ برابر قطر؛ تعداد = طول ÷ فاصله + ۱',pl:'قیمت هر کیلوگرم (تومان)',pi:3},
+{t:'خاک‌برداری',f:[['l','طول','متر',10],['w','عرض','متر',8],['d','عمق','متر',1.5],['s','ضریب تورم خاک','%',25],['k','ظرفیت کامیون','متر مکعب',10]],
+ c:v=>{const m=v.l*v.w*v.d,lo=m*(1+v.s/100);return[['حجم خاک‌برداری (در جا)',m,'متر مکعب'],['حجم خاک شل‌شده',lo,'متر مکعب'],['تعداد سفر کامیون',v.k>0?Math.ceil(lo/v.k):0,'سفر']]},n:'ضریب تورم معمول خاک حدود ۲۰ تا ۳۰ درصد است.',pl:'هزینه هر متر مکعب (تومان)',pi:0},
+{t:'سفیدکاری',f:[['a','مساحت سطح','متر مربع',50],['t','ضخامت اندود','سانتی‌متر',2],['c','سیمان در هر متر مکعب ملات','کیلوگرم',350],['s','ماسه در هر متر مکعب ملات','متر مکعب',1.1],['x','درصد ضایعات','%',10]],
+ c:v=>{const m=v.a*v.t/100*(1+v.x/100),k=m*v.c;return[['مساحت سطح',v.a,'متر مربع'],['حجم ملات',m,'متر مکعب'],['سیمان',k,'کیلوگرم'],['کیسه سیمان (۵۰ کیلویی)',Math.ceil(k/50),'کیسه'],['ماسه',m*v.s,'متر مکعب']]},n:'مقدار مصالح ملات تقریبی است؛ طبق مشخصات پروژه تنظیم کنید.',pl:'قیمت اجرای هر متر مربع (تومان)',pi:0},
+{t:'رنگ‌آمیزی',f:[['a','مساحت سطح','متر مربع',100],['n','تعداد دست','عدد',2],['r','پوشش هر لیتر در هر دست','متر مربع',9],['x','درصد ضایعات','%',10]],
+ c:v=>[['رنگ مورد نیاز',v.r>0?v.a*v.n/v.r*(1+v.x/100):0,'لیتر']],pl:'قیمت هر لیتر (تومان)',pi:0},
+{t:'قوطی و پروفیل',f:[['a','بعد اول','میلی‌متر',40],['b','بعد دوم','میلی‌متر',40],['t','ضخامت جداره','میلی‌متر',2],['l','طول هر شاخه','متر',6],['n','تعداد شاخه','عدد',10]],
+ c:v=>{const pm=(2*(v.a+v.b)-4*v.t)*v.t*0.00785;return[['وزن هر متر',pm,'کیلوگرم'],['وزن کل',pm*v.l*v.n,'کیلوگرم']]},n:'وزن تقریبی است؛ گردی گوشه‌ها لحاظ نشده.',pl:'قیمت هر کیلوگرم (تومان)',pi:1},
+{t:'مرجع مصالح',ref:true},
+{t:'درباره',about:true},
+{t:'راهنما',guide:true}
+];
 
+const nf3=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:3});
+const T=(h,rows)=>`<div class="wrap"><table class="tb"><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(x=>`<td>${typeof x==='number'?nf3.format(x):x}</td>`).join('')}</tr>`).join('')}</table></div>`;
+const D=(t,h,rows,n)=>`<details><summary>${t}</summary>${T(h,rows)}${n?`<p class="n">${n}</p>`:''}</details>`;
+function refHtml(){return '<p class="n" style="margin:0 0 6px">برای دیدن هر جدول روی عنوان آن بزنید.</p>'
++D('میلگرد آجدار',['قطر (mm)','وزن (kg/m)','سطح مقطع (cm²)'],[[8,0.395,0.503],[10,0.617,0.785],[12,0.888,1.131],[14,1.208,1.539],[16,1.578,2.011],[18,1.998,2.545],[20,2.466,3.142],[22,2.984,3.801],[25,3.853,4.909],[28,4.834,6.158],[32,6.313,8.042]],'وزن هر متر = قطر² ÷ ۱۶۲')
++D('تیرآهن IPE',['شماره','وزن (kg/m)'],[['IPE 80',6],['IPE 100',8.1],['IPE 120',10.4],['IPE 140',12.9],['IPE 160',15.8],['IPE 180',18.8],['IPE 200',22.4],['IPE 220',26.2],['IPE 240',30.7],['IPE 270',36.1],['IPE 300',42.2]],'وزن‌های استاندارد؛ محصول کارخانه‌ها ممکن است کمی فرق کند.')
++D('ناودانی UNP',['شماره','وزن (kg/m)'],[['UNP 80',8.64],['UNP 100',10.6],['UNP 120',13.4],['UNP 140',16],['UNP 160',18.8]])
++D('نبشی بال مساوی',['ابعاد (mm)','وزن (kg/m)'],[['40×40×4',2.42],['50×50×5',3.77],['60×60×6',5.42],['70×70×7',7.38],['80×80×8',9.66]])
++D('طرح اختلاط بتن (راهنما)',['رده','سیمان (kg/m³)','آب به سیمان'],[['C16',275,0.55],['C20',300,0.5],['C25',350,0.45],['C30',400,0.42],['C35',425,0.4]],'مقادیر تقریبی‌اند. مجموع ماسه و شن حدود ۱۸۰۰ تا ۱۹۰۰ کیلوگرم در هر متر مکعب است. طرح نهایی را با آزمایش و مصالح محل تعیین کنید.')
++D('درصد ضایعات مصالح',['مصالح','ضایعات'],[['آجر و بلوک','۵ تا ۸٪'],['کاشی و سرامیک (چیدمان ساده)','۵ تا ۱۰٪'],['کاشی (چیدمان مورب)','۱۰ تا ۱۵٪'],['رنگ','۵ تا ۱۰٪'],['ملات و گچ','۵ تا ۱۰٪'],['بتن','۳ تا ۵٪'],['میلگرد (برش و وصله)','۳ تا ۷٪']],'ارقام تجربی‌اند و به نوع کار بستگی دارند.')
++D('وزن مخصوص مصالح',['ماده','kg/m³'],[['فولاد',7850],['بتن مسلح',2500],['بتن ساده','۲۳۰۰ تا ۲۴۰۰'],['ملات سیمان',2000],['ماسه و شن (خشک)','۱۴۰۰ تا ۱۷۰۰'],['خاک','۱۶۰۰ تا ۱۹۰۰'],['شیشه',2500],['آب',1000]])}
+let cur=0;
+const $=id=>document.getElementById(id);
+function tabs(){$('tabs').innerHTML=C.map((c,i)=>`<button class="${i===cur?'on':''}" onclick="sel(${i})">${ic(c.t,18)}${c.t}</button>`).join('')}
+function sel(i){cur=i;tabs();form();$('out').innerHTML=''}
+function form(){const c=C[cur];
+ if(c.home){$('form').innerHTML=homeHtml();return}
+ if(c.ref){$('form').innerHTML=refHtml();return}
+ if(c.about){$('form').innerHTML=aboutHtml();return}
+ if(c.guide){$('form').innerHTML=guideHtml();return}
+ $('form').innerHTML=bannerHtml(c.t)+infoHtml(c.t)+c.f.map(([k,l,u,d])=>`<label for="f_${k}">${l}</label><div class="row"><input id="f_${k}" inputmode="decimal" value="${d}"><span class="u">${u}</span></div>`).join('')
+ +`<label for="price">${c.pl} - اختیاری</label><div class="row"><input id="price" inputmode="numeric" placeholder="۰"></div><button class="go" onclick="calc()">محاسبه</button>`}
+function calc(){const c=C[cur],v={},ins=[];
+ c.f.forEach(([k,l,u])=>{v[k]=num($('f_'+k).value);ins.push(`${l}: ${fmt(v[k])} ${u}`)});
+ const r=c.c(v),p=num($('price').value);
+ let h=`<div class="res"><div><b>${c.t}</b></div>`+ins.map(s=>`<div style="font-size:13px;color:var(--mut)">${s}</div>`).join('')+'<hr style="border:0;border-top:1px solid var(--bd)">'
+ +r.map(([l,x,u])=>`<div>${l}: <b>${fmt(x)}</b> ${u}</div>`).join('');
+ if(p>0)h+=`<div class="tot">هزینه تقریبی: ${fmt(r[c.pi][1]*p)} تومان</div>`;
+ if(c.n)h+=`<div style="font-size:12px;color:var(--mut);margin-top:6px">${c.n}</div>`;
+ h+=`</div><button class="go pr" onclick="cp(this)">کپی نتیجه</button><button class="go pr" onclick="window.print()">ذخیره / چاپ PDF</button>`;
+ $('out').innerHTML=h;$('out').scrollIntoView({behavior:'smooth',block:'nearest'})}
+function aboutHtml(){return `<div class="ab"><svg viewBox="0 0 300 380" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><path d="M40 380C40 290 90 258 150 258S260 290 260 380Z" fill="#1565c0"/><path d="M92 380L108 266 150 306 192 266 208 380Z" fill="#f9a825"/><path d="M99 340h102v10H99zM103 316h94v8h-94z" fill="#fff"/><rect x="134" y="228" width="32" height="38" rx="8" fill="#e0ac84"/><circle cx="150" cy="190" r="44" fill="#f0c09a"/><path d="M104 184C104 128 196 128 196 184Z" fill="#f9a825"/><rect x="94" y="180" width="112" height="11" rx="5" fill="#e68900"/><rect x="143" y="138" width="14" height="42" rx="5" fill="#e68900"/><circle cx="135" cy="203" r="3.5" fill="#333"/><circle cx="165" cy="203" r="3.5" fill="#333"/><path d="M136 217Q150 229 164 217" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/><g transform="rotate(-18 236 320)"><rect x="222" y="262" width="28" height="110" rx="9" fill="#e8f1fb" stroke="#1565c0" stroke-width="3"/><path d="M228 280h16M228 296h16M228 312h16" stroke="#1565c0" stroke-width="2"/></g><circle cx="236" cy="338" r="13" fill="#f0c09a"/></svg><div class="tx"><h2>درباره‌ی متره‌یار</h2>
+<p>متره‌یار دستیار کارگاه و دفتر فنی شماست. مقدار مصالح و هزینه‌ی تقریبی کار را در چند ثانیه حساب می‌کند تا پیش از خرید، برآورد دقیق‌تری داشته باشید.</p>
+<h3>امکانات</h3>
+<ul><li>دیوارچینی، بتن‌ریزی و میلگرد</li><li>خاموت، کاشی و سرامیک</li><li>خاک‌برداری و سفیدکاری</li><li>رنگ‌آمیزی و وزن قوطی و پروفیل</li><li>مرجع مصالح: جدول وزن و مشخصات و درصد ضایعات</li></ul>
+<h3>طرز استفاده</h3>
+<ol><li>نوع کار را از نوارِ بالا انتخاب کنید.</li><li>ابعاد و ضرایب را وارد کنید. مقدارهای پیش‌فرض قابل تغییرند.</li><li>اگر قیمت واحد را بنویسید، هزینه‌ی تقریبی هم نمایش داده می‌شود.</li><li>نتیجه را کپی یا چاپ کنید.</li></ol>
+<h3>توجه</h3>
+<p>ضریب‌ها و مقادیر مرجع تقریبی‌اند. پیش از خرید و اجرا، با نقشه‌ها و مشخصات فنی پروژه و نظر مهندس ناظر تطبیق دهید.</p></div></div>`}
+const G=[
+['دیوارچینی','برآورد تعداد بلوک یا آجر برای دیوارهای جداکننده و پیرامونی.','مساحت خالص = طول × ارتفاع − بازشوها. تعداد = مساحت × تعداد در هر متر مربع × (۱ + ضایعات).','دیوار ۱۰ در ۳ متر، ۱۲٫۵ بلوک در متر مربع، ۵٪ ضایعات: حدود ۳۹۴ عدد.'],
+['بتن‌ریزی','محاسبه‌ی حجم بتن و سیمان برای فونداسیون، کف‌سازی و دال.','حجم = طول × عرض × ضخامت × (۱ + ضایعات). سیمان = حجم × مقدار سیمان در هر متر مکعب.','کف ۵ در ۴ متر با ضخامت ۱۵ سانتی‌متر: ۳٫۱۵ متر مکعب بتن و ۱۹ کیسه سیمان.'],
+['میلگرد','وزن و طول کل میلگرد برای سفارش از آهن‌فروشی.','وزن هر متر = قطر² ÷ ۱۶۲. وزن کل = وزن هر متر × طول کل.','۱۰۰ شاخه‌ی ۱۲ متری قطر ۱۲: حدود ۱۰۶۷ کیلوگرم.'],
+['خاموت','تعداد و وزن خاموت تیرها و ستون‌ها.','تعداد = طول المان ÷ فاصله + ۱. طول هر خاموت از محیط مقطع منهای پوشش بتن به‌علاوه‌ی دو قلاب.','تیر ۴ متری با مقطع ۳۰×۴۰ و فاصله‌ی ۱۵ سانتی‌متر: ۲۷ خاموت، حدود ۱۳٫۲ کیلوگرم.'],
+['کاشی و سرامیک','تعداد کاشی برای کف و دیوار با احتساب ضایعات برش.','مساحت با ضایعات ÷ مساحت یک کاشی، رو به بالا گرد می‌شود.','۲۰ متر مربع با کاشی ۶۰×۶۰ و ۱۰٪ ضایعات: ۶۲ عدد.'],
+['خاک‌برداری','حجم گودبرداری و تعداد سفر کامیون برای حمل خاک.','حجم در جا = طول × عرض × عمق. خاک شل‌شده = حجم × (۱ + ضریب تورم). سفر = حجم شل‌شده ÷ ظرفیت کامیون.','گود ۱۰×۸×۱٫۵ متر: ۱۲۰ متر مکعب در جا، ۱۵۰ متر مکعب شل‌شده، ۱۵ سفر کامیون ۱۰ متری.'],
+['سفیدکاری','مصالح اندود سیمانی یا ملات برای دیوارها.','حجم ملات = مساحت × ضخامت × (۱ + ضایعات). سیمان و ماسه از مقدار هر متر مکعب ملات به‌دست می‌آید.','۵۰ متر مربع با ضخامت ۲ سانتی‌متر: ۱٫۱ متر مکعب ملات و ۸ کیسه سیمان.'],
+['رنگ‌آمیزی','مقدار رنگ مورد نیاز برای داخل و نمای ساختمان.','لیتر = مساحت × تعداد دست ÷ پوشش هر لیتر × (۱ + ضایعات).','۱۰۰ متر مربع، ۲ دست و پوشش ۹ متر مربع بر لیتر: حدود ۲۴ لیتر.'],
+['قوطی و پروفیل','وزن قوطی و پروفیل برای سازه‌های فلزی، نرده و درب و پنجره.','وزن هر متر = (۲×(a+b) − ۴t) × t × ۰٫۰۰۷۸۵ با ابعاد بر حسب میلی‌متر.','۱۰ شاخه‌ی ۶ متری قوطی ۴۰×۴۰ با ضخامت ۲: حدود ۱۴۳ کیلوگرم.'],
+['مرجع مصالح','جدول‌های آماده‌ی وزن میلگرد، تیرآهن، ناودانی و نبشی، طرح اختلاط بتن، ضایعات و وزن مخصوص مصالح.','برای بررسی سریع در کارگاه، بدون نیاز به کتاب یا جست‌وجو.','']
+];
+function guideHtml(){return '<p class="n" style="margin:0 0 6px">برای دیدن شرح هر بخش روی عنوان آن بزنید.</p>'
++'<details open><summary>برنامه به چه کسانی کمک می‌کند؟</summary><ul><li>مالک و سازنده برای برآورد خرید</li><li>پیمانکار برای پیشنهاد قیمت</li><li>ناظر و دفتر فنی برای کنترل سریع مقادیر</li><li>دانشجو و کارآموز برای یادگیری روش متره</li></ul></details>'
++'<details><summary>برآورد هزینه</summary><p>در هر بخش می‌توانید قیمت واحد را وارد کنید. هزینه‌ی تقریبی از ضرب مقدار اصلی در قیمت به‌دست می‌آید؛ مثلاً در میلگرد وزن کل در قیمت هر کیلوگرم. وارد کردن قیمت اختیاری است.</p></details>'
++G.map(([t,u,h,e])=>`<details><summary>${t}</summary><p><b>کاربرد:</b> ${u}</p><p><b>روش محاسبه:</b> ${h}</p>${e?`<p><b>مثال:</b> ${e}</p>`:''}</details>`).join('')
++'<details><summary>نکات برای نتیجه‌ی بهتر</summary><ul><li>درصد ضایعات را با شرایط واقعی کار تنظیم کنید.</li><li>قیمت‌ها را با نرخ روز وارد کنید.</li><li>مقدار خرید را همیشه رو به بالا گرد کنید.</li><li>نتیجه را با نقشه‌ها و مشخصات پروژه تطبیق دهید.</li></ul></details>'}
+const IC={
+'خانه':'<path d="M6 24L24 8l18 16M12 20v20h24V20M20 40V28h8v12"/>',
+'دیوارچینی':'<path d="M6 10h36v28H6zM6 19h36M6 28h36M24 10v9M15 19v9M33 19v9M24 28v10"/>',
+'بتن‌ریزی':'<path d="M6 26l18-9 18 9-18 9zM6 26v9l18 9 18-9v-9M24 35v9"/>',
+'میلگرد':'<path d="M6 14h36M6 24h36M6 34h36M14 11v6M22 11v6M30 11v6M38 11v6M14 21v6M22 21v6M30 21v6M38 21v6M14 31v6M22 31v6M30 31v6M38 31v6"/>',
+'خاموت':'<rect x="11" y="9" width="26" height="30" rx="4"/><circle cx="16" cy="14" r="2.5" fill="currentColor"/><circle cx="32" cy="14" r="2.5" fill="currentColor"/><circle cx="16" cy="34" r="2.5" fill="currentColor"/><circle cx="32" cy="34" r="2.5" fill="currentColor"/>',
+'کاشی و سرامیک':'<path d="M8 8h32v32H8zM8 19h32M8 30h32M19 8v32M30 8v32"/>',
+'خاک‌برداری':'<path d="M4 16h12l5 22h6l5-22h12M4 42h40M24 4v8M20 9l4 4 4-4"/>',
+'سفیدکاری':'<path d="M8 36l20-20 8 8-20 20zM34 14l6-6M38 18l4-4M8 44h12"/>',
+'رنگ‌آمیزی':'<rect x="8" y="8" width="26" height="12" rx="3"/><path d="M34 14h6v14H22v8M19 36h6v8h-6z"/>',
+'قوطی و پروفیل':'<rect x="8" y="8" width="32" height="32" rx="4"/><rect x="15" y="15" width="18" height="18" rx="2"/>',
+'مرجع مصالح':'<path d="M8 10h13c3 0 5 2 5 5v24c0-2-2-3-4-3H8zM40 10H27c-3 0-5 2-5 5v24c0-2 2-3 4-3h14z"/>',
+'درباره':'<circle cx="24" cy="24" r="16"/><path d="M24 22v10M24 16h.01"/>',
+'راهنما':'<circle cx="24" cy="24" r="16"/><path d="M19 20a5 5 0 119 2c-2 2-4 2-4 5M24 33h.01"/>'};
+const ic=(t,z)=>IC[t]?`<svg width="${z}" height="${z}" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[t]}</svg>`:'';
+const DG={
+'دیوارچینی':`<svg viewBox="0 0 200 110" fill="none" stroke="currentColor" stroke-width="2"><rect x="30" y="12" width="140" height="68"/><path stroke-width="1" opacity=".5" d="M30 29h140M30 46h140M30 63h140M80 12v17M130 12v17M55 29v17M105 29v17M155 29v17M80 46v17M130 46v17M55 63v17M105 63v17M155 63v17"/><rect x="120" y="40" width="28" height="40" stroke-dasharray="4 3" fill="var(--bg)"/><path stroke-width="1.2" d="M30 92h140M30 88v8M170 88v8M18 12v68M14 12h8M14 80h8"/><text x="100" y="107" text-anchor="middle">طول دیوار</text><text x="134" y="64" text-anchor="middle" style="font-size:9px">بازشو</text><text transform="rotate(-90 8 46)" x="8" y="46" text-anchor="middle">ارتفاع</text></svg>`,
+'بتن‌ریزی':`<svg viewBox="0 0 200 110" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M30 55h80v28H30zM30 55l40-22h80l-40 22M150 33v28l-40 22"/><text x="70" y="100" text-anchor="middle">طول</text><text x="160" y="80">عرض</text><text x="26" y="73" text-anchor="end">ضخامت</text></svg>`,
+'خاموت':`<svg viewBox="0 0 200 118" fill="none" stroke="currentColor" stroke-width="2"><rect x="62" y="8" width="76" height="86" rx="4" stroke-width="1.5" opacity=".6"/><rect x="72" y="18" width="56" height="66" rx="5" stroke-width="3"/><circle cx="80" cy="26" r="3.5" fill="currentColor"/><circle cx="120" cy="26" r="3.5" fill="currentColor"/><circle cx="80" cy="76" r="3.5" fill="currentColor"/><circle cx="120" cy="76" r="3.5" fill="currentColor"/><path stroke-width="1.2" d="M62 104h76M62 100v8M138 100v8M150 8v86M146 8h8M146 94h8M62 51h10"/><text x="100" y="116" text-anchor="middle">عرض مقطع</text><text x="158" y="54">ارتفاع</text><text x="58" y="48" text-anchor="end">پوشش</text></svg>`,
+'قوطی و پروفیل':`<svg viewBox="0 0 200 116" fill="none" stroke="currentColor" stroke-width="2"><rect x="64" y="8" width="72" height="72" rx="9" stroke-width="3"/><rect x="73" y="17" width="54" height="54" rx="3" opacity=".6"/><path stroke-width="1.2" d="M64 92h72M64 88v8M136 88v8M148 8v72M144 8h8M144 80h8M64 44h9"/><text x="100" y="108" text-anchor="middle">بعد اول</text><text x="154" y="48">بعد دوم</text><text x="60" y="40" text-anchor="end">ضخامت</text></svg>`};
+function bannerHtml(t){return `<div class="bn"><span class="bi">${ic(t,30)}</span><b>${t}</b></div>`+(DG[t]?`<div class="dg">${DG[t]}</div>`:'')}
+function homeHtml(){return `<div class="hero"><svg class="hm" width="44" height="44" viewBox="0 0 48 48" fill="#fff"><path d="M9 32a15 15 0 0130 0zM5 32h38v5H5zM21 15v-5h6v5z"/></svg><h2>متره‌یار</h2><p>دستیار برآورد مصالح و هزینه‌ی ساختمان</p><svg class="sk" viewBox="0 0 400 46" preserveAspectRatio="none"><path d="M0 46V26h30V12h24v20h26V20h30v26h20V8h26v38h30V24h28v22h30V14h24v32h30V28h28v18z"/></svg></div><p class="n" style="margin:0 0 8px;text-align:center">یکی از ابزارها را انتخاب کنید</p><div class="grid">`+C.map((c,i)=>c.home?'':`<button class="tile" onclick="sel(${i})">${ic(c.t,34)}<span>${c.t}</span></button>`).join('')+'</div>'}
+function infoHtml(t){const g=G.find(x=>x[0]===t);return g?`<div class="info"><b>کاربرد:</b> ${g[1]}<details><summary>روش محاسبه و مثال</summary><p>${g[2]}</p>${g[3]?`<p><b>مثال:</b> ${g[3]}</p>`:''}</details></div>`:''}
+function fb(t,ok){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}
+function cp(b){const t=document.querySelector('.res').innerText,ok=()=>{b.textContent='کپی شد ✓'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>fb(t,ok))}else fb(t,ok)}
+tabs();form();
+</script>
+</body>
+</html>
