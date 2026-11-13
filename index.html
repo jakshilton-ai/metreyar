@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>متره‌یار</title>
+<meta name="theme-color" content="#1565c0">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f5f7fa;--card:#fff;--tx:#1b2430;--mut:#5b6777;--pri:#1565c0;--prc:#fff;--res:#e3f0ff;--bd:#d5dce6;--bg2:#cfe2f7;--gl:rgba(21,101,192,.10)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--card:#1c222b;--tx:#eaeef3;--mut:#9aa6b5;--pri:#64a8ff;--prc:#0b1220;--res:#1d2f47;--bd:#2f3a48;--bg2:#070a0e;--gl:rgba(100,168,255,.08)}}
@@ -191,6 +194,7 @@ function homeHtml(){return `<div class="hero"><svg class="hm" width="44" height=
 function infoHtml(t){const g=G.find(x=>x[0]===t);return g?`<div class="info"><b>کاربرد:</b> ${g[1]}<details><summary>روش محاسبه و مثال</summary><p>${g[2]}</p>${g[3]?`<p><b>مثال:</b> ${g[3]}</p>`:''}</details></div>`:''}
 function fb(t,ok){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}
 function cp(b){const t=document.querySelector('.res').innerText,ok=()=>{b.textContent='کپی شد ✓'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>fb(t,ok))}else fb(t,ok)}
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 tabs();form();
 </script>
 </body>
