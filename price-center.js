@@ -14,7 +14,7 @@ function init(){
  if(document.getElementById('mt-market-btn'))return;
  const css=document.createElement('style');
  css.textContent=`
- #mt-market-btn{position:fixed;z-index:48;bottom:76px;left:14px;border:0;border-radius:28px;padding:12px 16px;background:#087e8b;color:white;font:inherit;font-weight:800;box-shadow:0 8px 24px #001b2b40;cursor:pointer}
+ body{background-image:radial-gradient(ellipse at 85% 0%,rgba(8,126,139,.10),transparent 38%),linear-gradient(180deg,var(--bg),var(--bg2))} .hero{background:linear-gradient(100deg,#08223deF,#155b80a8),url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1400&q=85') center 48%/cover!important;border-radius:0 0 18px 18px;box-shadow:0 12px 30px #071b3025} .card{border-radius:18px;box-shadow:0 8px 24px #071b3010} .tile{border-radius:16px;transition:transform .18s ease,box-shadow .18s ease} .tile:active{transform:scale(.97)} #mt-market-btn{position:fixed;z-index:48;bottom:76px;left:14px;border:0;border-radius:28px;padding:12px 16px;background:#087e8b;color:white;font:inherit;font-weight:800;box-shadow:0 8px 24px #001b2b40;cursor:pointer}
  #mt-market{position:fixed;z-index:120;inset:0;background:#071727b8;display:none;align-items:center;justify-content:center;padding:12px;backdrop-filter:blur(8px)}
  #mt-market.open{display:flex}.mm-panel{width:min(760px,100%);max-height:92vh;overflow:auto;border-radius:22px;background:var(--card,#fff);color:var(--tx,#18202b);border:1px solid var(--bd,#d5dce6);box-shadow:0 24px 80px #0006}
  .mm-hero{position:relative;min-height:180px;padding:24px;color:white;background:linear-gradient(100deg,#071d32eF,#0a5276a6),url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1400&q=85') center/cover}
