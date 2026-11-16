@@ -207,9 +207,27 @@ function infoHtml(t){const g=G.find(x=>x[0]===t);return g?`<div class="info"><b>
 function fb(t,ok){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}
 function cp(b){const t=document.querySelector('.res').innerText,ok=()=>{b.textContent='کپی شد ✓'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>fb(t,ok))}else fb(t,ok)}
 let calmAudio=null,calmTimer=null,calmOn=false,calmStep=0;
-const calmNotes=[261.63,329.63,392.00,329.63,293.66,349.23,440.00,349.23];
-function calmTone(freq){if(!calmAudio)return;const now=calmAudio.currentTime,osc=calmAudio.createOscillator(),gain=calmAudio.createGain();osc.type='triangle';osc.frequency.value=freq;gain.gain.setValueAtTime(0.0001,now);gain.gain.linearRampToValueAtTime(0.11,now+0.12);gain.gain.exponentialRampToValueAtTime(0.0001,now+1.05);osc.connect(gain);gain.connect(calmAudio.destination);osc.start(now);osc.stop(now+1.08)}
-function calmNext(){if(!calmOn)return;const n=calmNotes[calmStep%calmNotes.length];calmTone(n);calmTone(n*1.25);calmTone(n*1.5);calmStep++;calmTimer=setTimeout(calmNext,1250)}
+const calmMelody=[659.25,587.33,523.25,587.33,659.25,783.99,659.25,587.33,523.25,493.88,523.25,587.33,659.25,587.33,493.88,523.25];
+const calmChords=[[261.63,329.63,392.00],[220.00,261.63,329.63],[174.61,220.00,261.63],[196.00,246.94,293.66]];
+function softNote(freq,duration=0.8,volume=0.045,type='sine',delay=0){
+ if(!calmAudio)return;
+ const now=calmAudio.currentTime+delay,osc=calmAudio.createOscillator(),gain=calmAudio.createGain(),filter=calmAudio.createBiquadFilter();
+ osc.type=type;osc.frequency.setValueAtTime(freq,now);
+ filter.type='lowpass';filter.frequency.setValueAtTime(1800,now);
+ gain.gain.setValueAtTime(0.0001,now);gain.gain.exponentialRampToValueAtTime(volume,now+0.025);
+ gain.gain.exponentialRampToValueAtTime(Math.max(0.0001,volume*0.38),now+0.16);
+ gain.gain.exponentialRampToValueAtTime(0.0001,now+duration);
+ osc.connect(filter);filter.connect(gain);gain.connect(calmAudio.destination);
+ osc.start(now);osc.stop(now+duration+0.03);
+}
+function calmNext(){
+ if(!calmOn)return;
+ const beat=calmStep%16,bar=Math.floor(calmStep/4)%4,chord=calmChords[bar];
+ if(beat%4===0){softNote(chord[0]/2,1.7,0.035,'sine');chord.forEach((n,j)=>softNote(n,1.35,0.018,'sine',j*0.035))}
+ softNote(calmMelody[beat],0.72,0.042,'triangle');
+ if(beat%2===1)softNote(calmMelody[beat]*2,0.32,0.012,'sine',0.08);
+ calmStep++;calmTimer=setTimeout(calmNext,430);
+}
 async function toggleCalmMusic(){const b=document.getElementById('musicToggle');if(calmOn){calmOn=false;clearTimeout(calmTimer);if(calmAudio){await calmAudio.close();calmAudio=null}b.textContent='♫ موسیقی آرام: خاموش';b.setAttribute('aria-pressed','false');return}try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('no audio');calmAudio=new AC();await calmAudio.resume();calmOn=true;calmStep=0;calmNext();b.textContent='♫ موسیقی آرام: روشن';b.setAttribute('aria-pressed','true')}catch(e){calmOn=false;b.textContent='موسیقی در این مرورگر پشتیبانی نمی‌شود';b.setAttribute('aria-pressed','false')}}
 
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
