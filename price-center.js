@@ -1,0 +1,57 @@
+(() => {
+'use strict';
+const SOURCES = [
+ {name:'آرزناب | بازار آهن و مصالح',desc:'میلگرد، تیرآهن، ورق، پروفیل، سیمان و بورس کالا؛ نرخ‌های بازار با زمان آخرین دریافت',url:'https://arznab.com/en/market',tag:'بازار و بورس'},
+ {name:'الان چند؟ | قیمت مصالح',desc:'قیمت مصالح و آهن‌آلات؛ تفکیک قیمت بازار از آخرین معامله بورس و توضیح مالیات و حمل',url:'https://alanchand.com/building-materials-price',tag:'بازار ایران'},
+ {name:'مصالح‌رو | مصالح ساختمانی',desc:'سیمان، شن، ماسه، گچ، آجر، بلوک و مصالح تکمیلی؛ قیمت پایه و زمان ثبت',url:'https://masalehro.com/prices/',tag:'مصالح و تجهیزات'}
+];
+const KEY='metreyar.market-prices.v1';
+const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(_){return {}}};
+const write=x=>{try{localStorage.setItem(KEY,JSON.stringify(x));return true}catch(_){alert('ذخیره‌سازی در این دستگاه ممکن نیست.');return false}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2});
+function init(){
+ if(document.getElementById('mt-market-btn'))return;
+ const css=document.createElement('style');
+ css.textContent=`
+ #mt-market-btn{position:fixed;z-index:48;bottom:76px;left:14px;border:0;border-radius:28px;padding:12px 16px;background:#087e8b;color:white;font:inherit;font-weight:800;box-shadow:0 8px 24px #001b2b40;cursor:pointer}
+ #mt-market{position:fixed;z-index:120;inset:0;background:#071727b8;display:none;align-items:center;justify-content:center;padding:12px;backdrop-filter:blur(8px)}
+ #mt-market.open{display:flex}.mm-panel{width:min(760px,100%);max-height:92vh;overflow:auto;border-radius:22px;background:var(--card,#fff);color:var(--tx,#18202b);border:1px solid var(--bd,#d5dce6);box-shadow:0 24px 80px #0006}
+ .mm-hero{position:relative;min-height:180px;padding:24px;color:white;background:linear-gradient(100deg,#071d32eF,#0a5276a6),url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1400&q=85') center/cover}
+ .mm-hero h2{font-size:24px;margin:0}.mm-hero p{max-width:490px;font-size:13px;margin:6px 0 0;color:#e5f4ff}
+ .mm-close{position:absolute;left:16px;top:16px;border:1px solid #ffffff77;border-radius:50%;width:38px;height:38px;background:#ffffff20;color:white;font-size:20px;cursor:pointer}
+ .mm-body{padding:16px}.mm-live{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+ .mm-source{border:1px solid var(--bd);border-radius:15px;padding:13px;background:var(--bg);min-width:0}
+ .mm-tag{font-size:10px;color:#087e8b;font-weight:800}.mm-source b{display:block;margin:4px 0}.mm-source p{font-size:12px;color:var(--mut);margin:0 0 10px;line-height:1.7}
+ .mm-link{display:inline-flex;color:var(--pri);font-size:12px;font-weight:800;text-decoration:none}
+ .mm-note{font-size:12px;color:var(--mut);padding:11px 13px;background:var(--res);border-radius:12px;margin:12px 0}
+ .mm-title{font-size:16px;margin:18px 0 8px}.mm-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px}
+ .mm-form input,.mm-form select{min-width:0;width:100%;border:1px solid var(--bd);border-radius:10px;padding:10px;background:var(--bg);color:var(--tx);font:inherit;font-size:13px}
+ .mm-form button{border:0;border-radius:10px;padding:8px 14px;background:var(--pri);color:var(--prc);font:inherit;cursor:pointer}
+ .mm-table{width:100%;border-collapse:collapse;font-size:12px}.mm-table th,.mm-table td{padding:9px 6px;border-bottom:1px solid var(--bd);text-align:right}.mm-table th{color:var(--mut)}
+ .mm-delete{border:0;background:transparent;color:#c33;font:inherit;cursor:pointer}
+ @media(max-width:560px){.mm-live{grid-template-columns:1fr}.mm-form{grid-template-columns:1fr 1fr}.mm-form button{grid-column:1/-1}.mm-hero{min-height:160px}}
+ `;
+ document.head.appendChild(css);
+ const btn=document.createElement('button');btn.id='mt-market-btn';btn.textContent='▤ قیمت روز بازار';btn.addEventListener('click',()=>{modal.classList.add('open');render()});document.body.appendChild(btn);
+ const modal=document.createElement('div');modal.id='mt-market';modal.innerHTML=`<section class="mm-panel" role="dialog" aria-modal="true" aria-labelledby="mm-heading">
+ <div class="mm-hero"><button class="mm-close" id="mm-close" aria-label="بستن">×</button><h2 id="mm-heading">رادار قیمت مصالح و تجهیزات</h2><p>دسترسی سریع به نرخ‌های آنلاین بازار، ثبت قیمت استعلام‌شده و نگهداری فهرست خرید پروژه</p></div>
+ <div class="mm-body"><div class="mm-note"><b>شفافیت قیمت:</b> نرخ‌های بازار از منابع آنلاین باز می‌شوند؛ به‌دلیل نبود API عمومیِ تأییدشده، قیمت زنده درون برنامه جعل یا حدس زده نمی‌شود. قیمت نهایی را با شهر، برند، مالیات و کرایه حمل کنترل کنید.</div>
+ <h3 class="mm-title">منابع آنلاین قیمت</h3><div class="mm-live" id="mm-sources"></div>
+ <h3 class="mm-title">ثبت قیمت استعلام‌شده برای پروژه</h3>
+ <form class="mm-form" id="mm-form"><input id="mm-item" required maxlength="70" placeholder="مثلاً میلگرد ۱۴"><input id="mm-price" required inputmode="decimal" placeholder="قیمت (تومان)"><select id="mm-unit"><option>کیلوگرم</option><option>کیسه</option><option>تن</option><option>متر مکعب</option><option>متر مربع</option><option>شاخه</option><option>عدد</option><option>دستگاه</option></select><button type="submit">ثبت قیمت</button></form>
+ <div id="mm-list"></div><p class="mm-note">قیمت‌های ثبت‌شده فقط روی همین دستگاه ذخیره می‌شوند و برای برآورد شخصی‌اند؛ قیمت بازار به‌صورت خودکار همگام‌سازی نمی‌شود.</p></div></section>`;
+ document.body.appendChild(modal);
+ document.getElementById('mm-close').onclick=()=>modal.classList.remove('open');
+ modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remove('open')});
+ document.getElementById('mm-form').addEventListener('submit',e=>{e.preventDefault();const item=document.getElementById('mm-item').value.trim(),price=Number(document.getElementById('mm-price').value.replace(/[٬,،]/g,'')),unit=document.getElementById('mm-unit').value;if(!item||!Number.isFinite(price)||price<=0){alert('نام کالا و قیمت معتبر وارد کنید.');return}const data=read();data.items=Array.isArray(data.items)?data.items:[];data.items.push({id:Date.now(),item,price,unit,date:new Date().toLocaleString('fa-IR')});write(data);e.target.reset();render()});
+ function render(){
+ document.getElementById('mm-sources').innerHTML=SOURCES.map(s=>`<article class="mm-source"><span class="mm-tag">${s.tag}</span><b>${s.name}</b><p>${s.desc}</p><a class="mm-link" href="${s.url}" target="_blank" rel="noopener noreferrer">مشاهده قیمت‌های آنلاین ↗</a></article>`).join('');
+ const items=read().items||[];const host=document.getElementById('mm-list');
+ host.innerHTML=items.length?`<div style="overflow:auto;margin-top:12px"><table class="mm-table"><thead><tr><th>کالا</th><th>قیمت</th><th>واحد</th><th>تاریخ ثبت</th><th></th></tr></thead><tbody>${items.slice().reverse().map(x=>`<tr><td>${esc(x.item)}</td><td><b>${nf.format(x.price)}</b></td><td>${esc(x.unit)}</td><td>${esc(x.date)}</td><td><button class="mm-delete" data-del="${x.id}">حذف</button></td></tr>`).join('')}</tbody></table></div>`:'<p style="font-size:12px;color:var(--mut)">هنوز قیمتی برای پروژه ثبت نکرده‌اید.</p>';
+ host.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const d=read();d.items=(d.items||[]).filter(x=>String(x.id)!==b.dataset.del);write(d);render()});
+ }
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
