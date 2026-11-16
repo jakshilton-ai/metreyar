@@ -207,8 +207,9 @@ function infoHtml(t){const g=G.find(x=>x[0]===t);return g?`<div class="info"><b>
 function fb(t,ok){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}
 function cp(b){const t=document.querySelector('.res').innerText,ok=()=>{b.textContent='کپی شد ✓'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>fb(t,ok))}else fb(t,ok)}
 let calmAudio=null,calmTimer=null,calmOn=false,calmStep=0;
-const calmMelody=[659.25,587.33,523.25,587.33,659.25,783.99,659.25,587.33,523.25,493.88,523.25,587.33,659.25,587.33,493.88,523.25];
-const calmChords=[[261.63,329.63,392.00],[220.00,261.63,329.63],[174.61,220.00,261.63],[196.00,246.94,293.66]];
+// Modern lo-fi instrumental theme: warm Rhodes-like chords, mellow melody and soft bass.
+const calmMelody=[440,523.25,587.33,523.25,392,440,523.25,493.88,440,392,349.23,392,440,493.88,523.25,440];
+const calmChords=[[146.83,185.00,220.00],[110.00,146.83,185.00],[123.47,146.83,196.00],[98.00,123.47,146.83]];
 function softNote(freq,duration=0.8,volume=0.045,type='sine',delay=0){
  if(!calmAudio)return;
  const now=calmAudio.currentTime+delay,osc=calmAudio.createOscillator(),gain=calmAudio.createGain(),filter=calmAudio.createBiquadFilter();
