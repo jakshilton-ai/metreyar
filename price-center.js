@@ -3,7 +3,10 @@
 const SOURCES = [
  {name:'آرزناب | بازار آهن و مصالح',desc:'میلگرد، تیرآهن، ورق، پروفیل، سیمان و بورس کالا؛ نرخ‌های بازار با زمان آخرین دریافت',url:'https://arznab.com/en/market',tag:'بازار و بورس'},
  {name:'الان چند؟ | قیمت مصالح',desc:'قیمت مصالح و آهن‌آلات؛ تفکیک قیمت بازار از آخرین معامله بورس و توضیح مالیات و حمل',url:'https://alanchand.com/building-materials-price',tag:'بازار ایران'},
- {name:'مصالح‌رو | مصالح ساختمانی',desc:'سیمان، شن، ماسه، گچ، آجر، بلوک و مصالح تکمیلی؛ قیمت پایه و زمان ثبت',url:'https://masalehro.com/prices/',tag:'مصالح و تجهیزات'}
+ {name:'مصالح‌رو | مصالح ساختمانی',desc:'سیمان، شن، ماسه، گچ، آجر، بلوک و مصالح تکمیلی؛ قیمت پایه و زمان ثبت',url:'https://masalehro.com/prices/',tag:'مصالح و تجهیزات'},
+ {name:'آهن آپ | تجهیزات و قالب بتن',desc:'قیمت جک سقفی، قالب بتن، سولجر و اقلام تجهیزات؛ تاریخ و واحد قیمت را بررسی کنید',url:'https://ahanup.com/product_category/%D8%AA%D8%AC%D9%87%DB%8C%D8%B2%D8%A7%D8%AA/',tag:'تجهیزات و ابزار'},
+ {name:'ایران‌گاه | کرایه ماشین‌آلات',desc:'آمار کرایه ماشین‌آلات عمرانی و تجهیزات پروژه با تفکیک نوع دستگاه و واحد زمانی',url:'https://irangaah.ir/stats/machinery',tag:'اجاره ماشین‌آلات'},
+ {name:'مصالح‌رو | اجاره تجهیزات',desc:'استعلام موجودی و نرخ اجاره تخته، بشکه، بالابر و تجهیزات کارگاهی',url:'https://masalehro.com/rentals/',tag:'اجاره تجهیزات'}
 ];
 const KEY='metreyar.market-prices.v1';
 const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(_){return {}}};
