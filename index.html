@@ -16,7 +16,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;min-height:100vh;color:var(--tx);font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;line-height:1.7}
 header{padding:18px 16px 6px;text-align:center}
 h1{margin:0;font-size:24px}
-header p{margin:2px 0 0;color:var(--mut);font-size:14px}
+header p{margin:2px 0 0;color:var(--mut);font-size:14px}\n.music{margin-top:10px;padding:7px 13px;border:1px solid var(--bd);border-radius:20px;background:var(--card);color:var(--pri);font:inherit;font-size:13px;cursor:pointer}.music[aria-pressed="true"]{background:var(--res);border-color:var(--pri)}
 main{max-width:560px;margin:0 auto;padding:12px 16px 32px}
 .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
 .tabs button{flex:0 0 auto;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:20px;font:inherit;font-size:14px;cursor:pointer}
@@ -76,7 +76,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;background-image:linea
 </head>
 <body>
 <svg id="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true" fill="currentColor"><rect x="0" y="170" width="400" height="30"/><rect x="10" y="120" width="40" height="80"/><rect x="55" y="90" width="30" height="110"/><rect x="90" y="135" width="45" height="65"/><rect x="140" y="70" width="34" height="130"/><rect x="180" y="110" width="40" height="90"/><rect x="262" y="100" width="36" height="100"/><rect x="304" y="140" width="42" height="60"/><rect x="352" y="85" width="38" height="115"/><path d="M228 200V30h5v170zM205 30h95v5h-95zM228 30l-22-14h50zM292 35v28M290 63h5v6h-5z"/><path d="M233 35l59 0-59-14z" opacity=".6"/></svg>
-<header><h1>متره‌یار</h1><p>محاسبه مصالح و برآورد هزینه ساختمان</p></header>
+<header><h1>متره‌یار</h1><p>محاسبه مصالح و برآورد هزینه ساختمان</p><button id="musicToggle" class="music" type="button" onclick="toggleCalmMusic()" aria-pressed="false">♫ موسیقی آرام: خاموش</button></header>
 <main>
 <div class="tabs" id="tabs"></div>
 <div class="card" id="form"></div>
@@ -112,6 +112,8 @@ const C=[
  c:v=>[['رنگ مورد نیاز',v.r>0?v.a*v.n/v.r*(1+v.x/100):0,'لیتر']],pl:'قیمت هر لیتر (تومان)',pi:0},
 {t:'قوطی و پروفیل',f:[['a','بعد اول','میلی‌متر',40],['b','بعد دوم','میلی‌متر',40],['t','ضخامت جداره','میلی‌متر',2],['l','طول هر شاخه','متر',6],['n','تعداد شاخه','عدد',10]],
  c:v=>{const pm=(2*(v.a+v.b)-4*v.t)*v.t*0.00785;return[['وزن هر متر',pm,'کیلوگرم'],['وزن کل',pm*v.l*v.n,'کیلوگرم']]},n:'وزن تقریبی است؛ گردی گوشه‌ها لحاظ نشده.',pl:'قیمت هر کیلوگرم (تومان)',pi:1},
+{t:'برآورد سیم‌کشی',f:[['a','مساحت واحد / طبقه','متر مربع',100],['l','تعداد نقاط روشنایی','نقطه',12],['s','تعداد پریزها','نقطه',18],['dl','میانگین مسیر هر نقطه روشنایی','متر',8],['ds','میانگین مسیر هر پریز','متر',10],['n','تعداد رشته سیم در هر مسیر','رشته',3],['x','درصد ذخیره و پرت','%',10]],c:v=>{const k=1+v.x/100,light=v.l*v.dl*v.n*k,socket=v.s*v.ds*v.n*k;return[['سیم موردنیاز روشنایی',light,'متر'],['سیم موردنیاز پریزها',socket,'متر'],['جمع تقریبی سیم',light+socket,'متر'],['متراژ مسیر لوله‌گذاری (بدون ضریب رشته)',(v.l*v.dl+v.s*v.ds)*k,'متر']]},n:'این ابزار فقط برآورد اولیه متراژ بر اساس مسیرهای فرضی است. مسیر واقعی، مدار‌بندی، سطح مقطع سیم، افت ولتاژ، جریان مجاز، روش نصب و حفاظت باید طبق نقشه و مقررات ملی ساختمان توسط برق‌کار/مهندس برق تعیین شود.'},
+{t:'بار و جریان برق',f:[['p','توان کل تجهیزات متصل','وات',3500],['v','ولتاژ نامی','ولت',230],['f','ضریب توان (cos φ)','',0.9],['k','ضریب هم‌زمانی','',0.8]],c:v=>{const demand=v.p*v.k,current=v.v>0&&v.f>0?demand/(v.v*v.f):0;return[['توان برآوردی هم‌زمان',demand,'وات'],['جریان تقریبی',current,'آمپر'],['انرژی در یک ساعت با این بار',demand/1000,'کیلووات‌ساعت']]},n:'محاسبه تک‌فاز و تقریبی است. برای بارهای سه‌فاز، موتور، بارهای راه‌اندازی و انتخاب فیوز/کابل باید محاسبات تخصصی و شرایط نصب بررسی شود. این خروجی مبنای اجرای مستقیم نیست.'},
 {t:'مرجع مصالح',ref:true},
 {t:'درباره',about:true},
 {t:'راهنما',guide:true}
@@ -157,6 +159,9 @@ function aboutHtml(){return `<div class="ab"><svg viewBox="0 0 300 380" preserve
 <h3>توجه</h3>
 <p>ضریب‌ها و مقادیر مرجع تقریبی‌اند. پیش از خرید و اجرا، با نقشه‌ها و مشخصات فنی پروژه و نظر مهندس ناظر تطبیق دهید.</p></div></div>`}
 const G=[
+['برآورد سیم‌کشی','تخمین متراژ سیم و مسیر لوله بر اساس تعداد نقاط و میانگین طول مسیر.','متراژ سیم = تعداد نقاط × میانگین مسیر × تعداد رشته × (۱ + درصد ذخیره).','۱۲ نقطه روشنایی با مسیر ۸ متر و ۳ رشته، با ۱۰٪ ذخیره: حدود ۳۱۷ متر سیم.'],
+['بار و جریان برق','برآورد اولیه جریان مصرفی یک مدار تک‌فاز از توان تجهیزات.','توان هم‌زمان = مجموع توان × ضریب هم‌زمانی. جریان تقریبی = توان هم‌زمان ÷ (ولتاژ × ضریب توان).','۳۵۰۰ وات با ضریب هم‌زمانی ۰٫۸، ولتاژ ۲۳۰ و ضریب توان ۰٫۹: حدود ۱۳٫۵ آمپر.'],
+
 ['دیوارچینی','برآورد تعداد بلوک یا آجر برای دیوارهای جداکننده و پیرامونی.','مساحت خالص = طول × ارتفاع − بازشوها. تعداد = مساحت × تعداد در هر متر مربع × (۱ + ضایعات).','دیوار ۱۰ در ۳ متر، ۱۲٫۵ بلوک در متر مربع، ۵٪ ضایعات: حدود ۳۹۴ عدد.'],
 ['بتن‌ریزی','محاسبه‌ی حجم بتن و سیمان برای فونداسیون، کف‌سازی و دال.','حجم = طول × عرض × ضخامت × (۱ + ضایعات). سیمان = حجم × مقدار سیمان در هر متر مکعب.','کف ۵ در ۴ متر با ضخامت ۱۵ سانتی‌متر: ۳٫۱۵ متر مکعب بتن و ۱۹ کیسه سیمان.'],
 ['میلگرد','وزن و طول کل میلگرد برای سفارش از آهن‌فروشی.','وزن هر متر = قطر² ÷ ۱۶۲. وزن کل = وزن هر متر × طول کل.','۱۰۰ شاخه‌ی ۱۲ متری قطر ۱۲: حدود ۱۰۶۷ کیلوگرم.'],
@@ -184,6 +189,8 @@ const IC={
 'سفیدکاری':'<path d="M8 36l20-20 8 8-20 20zM34 14l6-6M38 18l4-4M8 44h12"/>',
 'رنگ‌آمیزی':'<rect x="8" y="8" width="26" height="12" rx="3"/><path d="M34 14h6v14H22v8M19 36h6v8h-6z"/>',
 'قوطی و پروفیل':'<rect x="8" y="8" width="32" height="32" rx="4"/><rect x="15" y="15" width="18" height="18" rx="2"/>',
+'برآورد سیم‌کشی':'<path d="M8 10h32v28H8zM14 17h20M14 24h12M14 31h16M34 24l4 4-4 4"/>',
+'بار و جریان برق':'<path d="M27 5L12 26h11l-2 17 15-21H25z"/>',
 'مرجع مصالح':'<path d="M8 10h13c3 0 5 2 5 5v24c0-2-2-3-4-3H8zM40 10H27c-3 0-5 2-5 5v24c0-2 2-3 4-3h14z"/>',
 'درباره':'<circle cx="24" cy="24" r="16"/><path d="M24 22v10M24 16h.01"/>',
 'راهنما':'<circle cx="24" cy="24" r="16"/><path d="M19 20a5 5 0 119 2c-2 2-4 2-4 5M24 33h.01"/>'};
@@ -198,6 +205,12 @@ function homeHtml(){return `<div class="hero"><svg class="hm" width="44" height=
 function infoHtml(t){const g=G.find(x=>x[0]===t);return g?`<div class="info"><b>کاربرد:</b> ${g[1]}<details><summary>روش محاسبه و مثال</summary><p>${g[2]}</p>${g[3]?`<p><b>مثال:</b> ${g[3]}</p>`:''}</details></div>`:''}
 function fb(t,ok){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}
 function cp(b){const t=document.querySelector('.res').innerText,ok=()=>{b.textContent='کپی شد ✓'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>fb(t,ok))}else fb(t,ok)}
+let calmAudio=null,calmTimer=null,calmOn=false,calmStep=0;
+const calmNotes=[261.63,329.63,392.00,329.63,293.66,349.23,440.00,349.23];
+function calmTone(freq){if(!calmAudio)return;const now=calmAudio.currentTime,osc=calmAudio.createOscillator(),gain=calmAudio.createGain();osc.type='sine';osc.frequency.value=freq;gain.gain.setValueAtTime(0.0001,now);gain.gain.linearRampToValueAtTime(0.035,now+0.12);gain.gain.exponentialRampToValueAtTime(0.0001,now+1.05);osc.connect(gain);gain.connect(calmAudio.destination);osc.start(now);osc.stop(now+1.08)}
+function calmNext(){if(!calmOn)return;calmTone(calmNotes[calmStep%calmNotes.length]);calmStep++;calmTimer=setTimeout(calmNext,1250)}
+async function toggleCalmMusic(){const b=document.getElementById('musicToggle');if(calmOn){calmOn=false;clearTimeout(calmTimer);if(calmAudio){await calmAudio.close();calmAudio=null}b.textContent='♫ موسیقی آرام: خاموش';b.setAttribute('aria-pressed','false');return}try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('no audio');calmAudio=new AC();await calmAudio.resume();calmOn=true;calmStep=0;calmNext();b.textContent='♫ موسیقی آرام: روشن';b.setAttribute('aria-pressed','true')}catch(e){calmOn=false;b.textContent='موسیقی در این مرورگر پشتیبانی نمی‌شود';b.setAttribute('aria-pressed','false')}}
+
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 tabs();form();
 </script>
