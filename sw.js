@@ -1,4 +1,4 @@
-const CACHE='metreyar-v9';
+const CACHE='metreyar-v10';
 const FILES=['./','./index.html','./manifest.json','./pro-tools.js','./price-center.js','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));
