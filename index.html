@@ -76,7 +76,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;background-image:linea
 </head>
 <body>
 <svg id="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true" fill="currentColor"><rect x="0" y="170" width="400" height="30"/><rect x="10" y="120" width="40" height="80"/><rect x="55" y="90" width="30" height="110"/><rect x="90" y="135" width="45" height="65"/><rect x="140" y="70" width="34" height="130"/><rect x="180" y="110" width="40" height="90"/><rect x="262" y="100" width="36" height="100"/><rect x="304" y="140" width="42" height="60"/><rect x="352" y="85" width="38" height="115"/><path d="M228 200V30h5v170zM205 30h95v5h-95zM228 30l-22-14h50zM292 35v28M290 63h5v6h-5z"/><path d="M233 35l59 0-59-14z" opacity=".6"/></svg>
-<header><h1>متره‌یار</h1><p>محاسبه مصالح و برآورد هزینه ساختمان</p><button id="musicToggle" class="music" type="button" onclick="toggleCalmMusic()" aria-pressed="false">♫ موسیقی آرام: خاموش</button></header>
+<header><h1>متره‌یار</h1><p>محاسبه مصالح و برآورد هزینه ساختمان</p><button id="musicToggle" class="music" type="button" onclick="toggleCalmMusic()" aria-pressed="false">♫ موسیقی آرام: خاموش</button> <button id="copyLinkBtn" class="music" type="button" onclick="copyAppLink()">لینک کپی</button></header>
 <main>
 <div class="tabs" id="tabs"></div>
 <div class="card" id="form"></div>
@@ -205,6 +205,12 @@ const PHOTO={'دیوارچینی':'photo-1503387762-592deb58ef4e','بتن‌ری
 function homeHtml(){return `<div class="hero"><svg class="hm" width="44" height="44" viewBox="0 0 48 48" fill="#fff"><path d="M9 32a15 15 0 0130 0zM5 32h38v5H5zM21 15v-5h6v5z"/></svg><h2>متره‌یار</h2><p>دستیار برآورد مصالح و هزینه‌ی ساختمان</p><svg class="sk" viewBox="0 0 400 46" preserveAspectRatio="none"><path d="M0 46V26h30V12h24v20h26V20h30v26h20V8h26v38h30V24h28v22h30V14h24v32h30V28h28v18z"/></svg></div><p class="n" style="margin:0 0 8px;text-align:center">یکی از ابزارها را انتخاب کنید</p><div class="grid">`+C.map((c,i)=>c.home?'':`<button class="tile" onclick="sel(${i})"><img class="tile-photo" loading="lazy" src="${photoFor(c.t)}" alt="تصویر واقعی ${c.t}"><span>${c.t}</span></button>`).join('')+'</div>'}
 function infoHtml(t){const g=G.find(x=>x[0]===t);return g?`<div class="info"><b>کاربرد:</b> ${g[1]}<details><summary>روش محاسبه و مثال</summary><p>${g[2]}</p>${g[3]?`<p><b>مثال:</b> ${g[3]}</p>`:''}</details></div>`:''}
 function fb(t,ok){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok()}catch(e){}a.remove()}
+function copyAppLink(){
+ const b=document.getElementById('copyLinkBtn'),url='https://jakshilton-ai.github.io/metreyar/';
+ const done=()=>{b.textContent='لینک کپی شد ✓';setTimeout(()=>b.textContent='لینک کپی',2200)};
+ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,()=>fb(url,done))}
+ else fb(url,done);
+}
 function cp(b){const t=document.querySelector('.res').innerText,ok=()=>{b.textContent='کپی شد ✓'};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,()=>fb(t,ok))}else fb(t,ok)}
 let calmAudio=null,calmTimer=null,calmOn=false,calmStep=0;
 // Modern lo-fi instrumental theme: warm Rhodes-like chords, mellow melody and soft bass.
