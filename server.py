@@ -25,6 +25,18 @@ WINDOW = 60
 requests_by_ip = defaultdict(deque)
 
 app = FastAPI(title="Metreyar Engineering File Converter", version=APP_VERSION)
+
+@app.get("/")
+def root():
+    return {
+        "ok": True,
+        "service": "metreyar-converter",
+        "version": APP_VERSION,
+        "health": "/health",
+        "docs": "/docs",
+        "convert": "POST /convert",
+        "cloudconvert_status": "GET /cloudconvert/status/{job_id}",
+    }
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -221,9 +233,9 @@ async def convert(request: Request, file: UploadFile = File(...)):
         )
         if tmp_in:
             cleanup(tmp_in)
-        if tmp_out and not handed_off:
-            cleanup(tmp_out)
             tmp_in = None
+        # Keep the generated PDF until Starlette has finished streaming it.
+        # FileResponse's background task removes it after the response is sent.
         handed_off = True
         return response
     except HTTPException:
