@@ -107,4 +107,55 @@ function initFinancialMarket(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initFinancialMarket);else initFinancialMarket();
 
+
+/* Persistent moving market ticker at the very top of the app */
+function initMetreyarTicker(){
+ if(document.getElementById('mt-market-ticker'))return;
+ const css=document.createElement('style');
+ css.textContent=`
+ #mt-market-ticker{direction:rtl;position:relative;z-index:60;display:flex;align-items:center;gap:0;width:100%;height:42px;overflow:hidden;background:linear-gradient(90deg,#071d32,#0c4561);color:#fff;border-bottom:1px solid #ffffff22;font-family:inherit}
+ #mt-market-ticker .mtt-label{flex:0 0 auto;padding:0 12px;font-size:11px;font-weight:900;color:#b9f3df;border-left:1px solid #ffffff30}
+ #mt-market-ticker .mtt-window{flex:1;overflow:hidden;white-space:nowrap}
+ #mt-market-ticker .mtt-track{display:inline-flex;align-items:center;gap:34px;min-width:max-content;padding-right:100%;animation:mtTickerMove 34s linear infinite}
+ #mt-market-ticker:hover .mtt-track{animation-play-state:paused}
+ #mt-market-ticker .mtt-item{font-size:12px;font-weight:700;display:inline-flex;gap:7px;align-items:center}
+ #mt-market-ticker .mtt-item b{color:#ffe08a;font-variant-numeric:tabular-nums}
+ #mt-market-ticker .mtt-dot{width:5px;height:5px;border-radius:50%;background:#42d6a4;display:inline-block}
+ #mt-market-ticker .mtt-state{font-size:11px;color:#dcecf5;padding:0 10px;white-space:nowrap}
+ @keyframes mtTickerMove{from{transform:translateX(0)}to{transform:translateX(50%)}}
+ @media(prefers-reduced-motion:reduce){#mt-market-ticker .mtt-track{animation:none}}
+ `;
+ document.head.appendChild(css);
+ const bar=document.createElement('div');bar.id='mt-market-ticker';bar.setAttribute('aria-label','نوار متحرک قیمت بازار');
+ bar.innerHTML='<span class="mtt-label">بازار امروز</span><div class="mtt-window"><div class="mtt-track" id="mtt-track"><span class="mtt-item">در حال دریافت قیمت آنلاین…</span></div></div><span class="mtt-state" id="mtt-state">اتصال</span>';
+ document.body.insertBefore(bar,document.body.firstChild);
+ const track=bar.querySelector('#mtt-track'),state=bar.querySelector('#mtt-state');
+ const fmt=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2}).format(n):'—'};
+ const item=(name,value,unit)=>'<span class="mtt-item"><i class="mtt-dot"></i>'+name+' <b>'+fmt(value)+'</b> '+unit+'</span>';
+ async function refresh(){
+  try{
+   const base=(localStorage.getItem('metreyar.converterUrl')||'https://metreyar-converter.onrender.com').replace(/\/$/,'');
+   const r=await fetch(base+'/market/financial',{cache:'no-store'});if(!r.ok)throw new Error('منبع قیمت فعلاً پاسخ نمی‌دهد');
+   const d=await r.json(),p=d.prices||{},items=[];
+   const add=(k,label,unit)=>{if(p[k]&&p[k].price!=null)items.push(item(label,p[k].price,unit))};
+   add('ounce','اونس جهانی طلا',');
+   add('gram18','طلای ۱۸ عیار','تومان');
+   add('gram24','طلای ۲۴ عیار','تومان');
+   add('mazaneh','مثقال طلا','تومان');
+   add('usd','دلار آزاد','تومان');
+   if(d.tedpix&&d.tedpix.value!=null)items.push(item('شاخص کل بورس',d.tedpix.value,'واحد'));
+   if(!items.length)throw new Error('داده معتبر دریافت نشد');
+   const content=items.join('<span class="mtt-item" aria-hidden="true"> ◆ </span>');
+   track.innerHTML=content+content;
+   state.textContent=d.stale?'آخرین داده ذخیره‌شده':'آنلاین';
+   state.title=d.updated_at?'آخرین دریافت: '+new Date(d.updated_at).toLocaleString('fa-IR'):'';
+  }catch(e){
+   track.innerHTML='<span class="mtt-item">قیمت زنده فعلاً در دسترس نیست؛ برای جلوگیری از نمایش نرخ اشتباه، عددی نشان داده نمی‌شود.</span>';
+   state.textContent='عدم اتصال';
+  }
+ }
+ refresh();setInterval(refresh,300000);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initMetreyarTicker);else initMetreyarTicker();
+
 })();
