@@ -42,6 +42,15 @@ def cleanup(path: str):
 def health():
     return {"ok": True, "service": "metreyar-converter", "version": APP_VERSION}
 
+@app.get("/aps/status")
+def aps_status():
+    configured = all(os.getenv(k) for k in ("APS_CLIENT_ID", "APS_CLIENT_SECRET", "APS_ACTIVITY_ID"))
+    return {
+        "provider": "Autodesk Platform Services",
+        "configured": configured,
+        "dwg_conversion": "ready_for_activity_setup" if configured else "credentials_and_activity_required"
+    }
+
 @app.post("/convert")
 async def convert(request: Request, file: UploadFile = File(...)):
     ip = request.client.host if request.client else "unknown"
@@ -62,8 +71,8 @@ async def convert(request: Request, file: UploadFile = File(...)):
         )
     if ext == ".dwg":
         raise HTTPException(
-            415,
-            "تبدیل مستقیم DWG به موتور CAD دارای مجوز (Autodesk یا ODA) نیاز دارد. فعلاً فایل را از AutoCAD به DXF یا PDF خروجی بگیرید."
+            503,
+            "موتور Autodesk APS هنوز پیکربندی نشده است. مدیر سامانه باید APS_CLIENT_ID، APS_CLIENT_SECRET و APS_ACTIVITY_ID را در تنظیمات محرمانه سرور ثبت و Activity اتوکد را فعال کند."
         )
 
     tmp_in = None
