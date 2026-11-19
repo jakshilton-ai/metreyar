@@ -160,4 +160,67 @@ if(typeof originalSel==='function'){
 const observer=new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)translate(n);else if(n.nodeType===3)translate(n.parentElement||document.body)})));
 observer.observe(document.body,{childList:true,subtree:true});
 translate();
+
+/* Live date, ownership notice, and local technical-file library */
+const filesBtn=document.createElement('button');
+filesBtn.type='button';filesBtn.textContent='📁 فایل‌های فنی';
+filesBtn.onclick=()=>openPanel('files');
+bar.appendChild(filesBtn);
+const dateCredit=document.createElement('div');
+dateCredit.id='mt-date-credit';
+dateCredit.style.cssText='text-align:center;padding:4px 10px 9px;color:var(--mut);font-size:12px';
+function refreshMetreyarDate(){
+ const now=new Date();
+ const fa=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{dateStyle:'full'}).format(now);
+ const en=new Intl.DateTimeFormat('en-CA',{dateStyle:'medium'}).format(now);
+ dateCredit.textContent='امروز: '+fa+' | '+en+' · مالک و تولیدکننده محتوا: مهدی باقربخش';
+}
+refreshMetreyarDate();
+setInterval(refreshMetreyarDate,60000);
+if(header)header.insertAdjacentElement('afterend',dateCredit);
+style.textContent += '.mt-file-item{border:1px solid var(--bd);border-radius:11px;padding:10px;margin:9px 0}.mt-file-item b,.mt-file-item small{display:block;overflow-wrap:anywhere}.mt-file-item small{color:var(--mut);font-size:12px}.mt-file-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.mt-file-actions button{font:inherit;font-size:12px;padding:7px 10px;border:1px solid var(--bd);border-radius:9px;background:var(--res);color:var(--tx)}';
+const FILE_DB='metreyar-technical-files-v1';
+function openFileDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(FILE_DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('files'))req.result.createObjectStore('files',{keyPath:'id'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function getTechnicalFiles(){const db=await openFileDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readonly'),r=tx.objectStore('files').getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);tx.oncomplete=()=>db.close()})}
+async function saveTechnicalFile(file){const db=await openFileDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite'),id=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);tx.objectStore('files').put({id,name:file.name,type:file.type||'',size:file.size,addedAt:new Date().toISOString(),blob:file});tx.oncomplete=()=>{db.close();resolve(id)};tx.onerror=()=>{db.close();reject(tx.error)}})}
+async function deleteTechnicalFile(id){const db=await openFileDb();return new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
+function showFiles(){
+ $('#mt-title').textContent='مدیریت فایل‌های فنی';
+ const body=$('#mt-body');
+ body.innerHTML='<p>فایل‌های PDF را داخل برنامه مشاهده کنید. فایل‌های اصلی SAFE، STAAD.Pro و AutoCAD در همین دستگاه نگهداری و قابل دریافت‌اند؛ برای نمایش آن‌ها به PDF، ابتدا از نرم‌افزار اصلی خروجی PDF بگیرید و آن را نیز بارگذاری کنید.</p><label for="mt-tech-upload">افزودن فایل PDF یا فایل پروژه</label><input id="mt-tech-upload" type="file" multiple accept=".pdf,.fdb,.sdb,.std,.anl,.db,.dwg,.dxf,.dwt,.dws,.bak,application/pdf" style="width:100%"><div id="mt-tech-list" aria-live="polite"></div><div class="mt-result">فرمت‌های قابل نگهداری: PDF، SAFE، STAAD.Pro و AutoCAD. پیش‌نمایش داخل برنامه برای PDF فعال است؛ فایل‌های بومی نرم‌افزارها به برنامه اصلی خود نیاز دارند. فایل‌ها فقط روی همین دستگاه ذخیره می‌شوند.</div>';
+ const host=$('#mt-tech-list'),picker=$('#mt-tech-upload');
+ async function render(){
+  host.textContent='در حال بارگذاری فهرست فایل‌ها…';
+  try{
+   const files=(await getTechnicalFiles()).sort((a,b)=>b.addedAt.localeCompare(a.addedAt));host.innerHTML='';
+   if(!files.length){host.textContent='هنوز فایلی اضافه نشده است.';return}
+   files.forEach(f=>{
+    const item=document.createElement('div');item.className='mt-file-item';
+    const name=document.createElement('b');name.textContent=f.name;
+    const meta=document.createElement('small');meta.textContent=(f.size/1048576).toFixed(2)+' MB · '+new Date(f.addedAt).toLocaleDateString('fa-IR');
+    const actions=document.createElement('div');actions.className='mt-file-actions';
+    if(/\.pdf$/i.test(f.name)){
+     const view=document.createElement('button');view.type='button';view.textContent='نمایش PDF';
+     view.onclick=()=>{const url=URL.createObjectURL(f.blob);body.innerHTML='<button id="mt-pdf-back" type="button">↩ بازگشت به فایل‌ها</button><p></p><iframe title="نمایش فایل PDF" src="'+url+'" style="width:100%;height:65vh;border:1px solid var(--bd);border-radius:10px;background:white"></iframe>';body.querySelector('p').textContent=f.name;$('#mt-pdf-back').onclick=showFiles};
+     actions.appendChild(view);
+    }
+    const download=document.createElement('button');download.type='button';download.textContent='دریافت فایل';
+    download.onclick=()=>{const url=URL.createObjectURL(f.blob),a=document.createElement('a');a.href=url;a.download=f.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000)};
+    actions.appendChild(download);
+    const remove=document.createElement('button');remove.type='button';remove.textContent='حذف';
+    remove.onclick=async()=>{if(confirm('این فایل از حافظه همین دستگاه حذف شود؟')){await deleteTechnicalFile(f.id);render()}};
+    actions.appendChild(remove);item.append(name,meta,actions);host.appendChild(item);
+   });
+  }catch(e){host.textContent='ذخیره‌سازی فایل در این مرورگر در دسترس نیست.'}
+ }
+ picker.addEventListener('change',async()=>{
+  const selected=Array.from(picker.files||[]);if(!selected.length)return;
+  for(const f of selected){try{await saveTechnicalFile(f)}catch(e){alert('ذخیره فایل '+f.name+' انجام نشد؛ ممکن است فضای دستگاه کافی نباشد.');break}}
+  picker.value='';render();
+ });
+ render();
+}
+const originalOpenPanel=openPanel;
+openPanel=function(which){if(which==='files'){overlay.classList.add('open');document.body.style.overflow='hidden';showFiles();translate(overlay);return}originalOpenPanel(which)};
+
 })();
