@@ -57,4 +57,54 @@ function init(){
  }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+
+/* Financial market dashboard: gold, USD and Tehran market index. */
+function initFinancialMarket(){
+ if(document.getElementById('mt-finance-btn'))return;
+ const style=document.createElement('style');
+ style.textContent=`
+ #mt-finance-btn{position:fixed;z-index:48;bottom:132px;left:14px;border:0;border-radius:28px;padding:12px 16px;background:#173f68;color:#fff;font:inherit;font-weight:800;box-shadow:0 8px 24px #001b2b40;cursor:pointer}
+ #mt-finance{position:fixed;z-index:125;inset:0;background:#071727c9;display:none;align-items:center;justify-content:center;padding:12px;backdrop-filter:blur(8px)}
+ #mt-finance.open{display:flex}.mf-panel{width:min(760px,100%);max-height:92vh;overflow:auto;border-radius:22px;background:var(--card,#fff);color:var(--tx,#18202b);border:1px solid var(--bd);box-shadow:0 24px 80px #0006}
+ .mf-head{padding:22px;color:white;background:linear-gradient(110deg,#102b47,#087e8b);position:relative}.mf-head h2{margin:0;font-size:22px}.mf-head p{font-size:12px;margin:7px 0 0;color:#e4f5ff}
+ .mf-close{position:absolute;left:14px;top:14px;border:1px solid #ffffff88;border-radius:50%;width:36px;height:36px;background:#ffffff20;color:white;font-size:20px}
+ .mf-body{padding:15px}.mf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .mf-card{border:1px solid var(--bd);border-radius:15px;padding:13px;background:var(--bg)}.mf-card small{color:var(--mut);display:block}.mf-card b{font-size:19px;display:block;margin:7px 0;overflow-wrap:anywhere}.mf-card span{font-size:11px;color:var(--mut)}
+ .mf-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.mf-actions a,.mf-actions button{border:0;border-radius:10px;padding:10px 13px;background:var(--pri);color:var(--prc);font:inherit;text-decoration:none}
+ .mf-note{font-size:11px;line-height:1.8;color:var(--mut);padding:10px;background:var(--res);border-radius:11px;margin-top:12px}
+ @media(max-width:520px){.mf-grid{grid-template-columns:1fr}.mf-card b{font-size:18px}}
+ `;
+ document.head.appendChild(style);
+ const btn=document.createElement('button');btn.id='mt-finance-btn';btn.textContent='📈 طلا، دلار و بورس';document.body.appendChild(btn);
+ const modal=document.createElement('div');modal.id='mt-finance';modal.innerHTML=`<section class="mf-panel" role="dialog" aria-modal="true" aria-labelledby="mf-title">
+ <header class="mf-head"><button class="mf-close" id="mf-close" aria-label="بستن">×</button><h2 id="mf-title">رادار بازارهای مالی</h2><p>قیمت طلا، دلار و شاخص بورس ایران با زمان آخرین دریافت</p></header>
+ <div class="mf-body"><div id="mf-status" class="mf-note">برای دریافت آخرین داده‌ها، دکمه به‌روزرسانی را بزنید.</div><div class="mf-grid" id="mf-cards"></div>
+ <div class="mf-actions"><button id="mf-refresh">↻ به‌روزرسانی قیمت‌ها</button><a href="https://www.tsetmc.com/" target="_blank" rel="noopener noreferrer">مشاهده بورس تهران ↗</a><a href="https://talasanj.info/" target="_blank" rel="noopener noreferrer">منبع قیمت طلا و دلار ↗</a></div>
+ <p class="mf-note">قیمت طلا و دلار از طلاسنج دریافت می‌شود و با نام منبع نمایش داده می‌شود. شاخص بورس در صورت در دسترس بودن سرویس بازار نمایش داده خواهد شد؛ در غیر این صورت از لینک بورس تهران استفاده کنید. داده‌ها ممکن است با تأخیر همراه باشند و توصیه سرمایه‌گذاری نیستند.</p></div></section>`;
+ document.body.appendChild(modal);
+ const close=()=>modal.classList.remove('open');btn.onclick=()=>{modal.classList.add('open');loadFinance()};modal.querySelector('#mf-close').onclick=close;modal.addEventListener('click',e=>{if(e.target===modal)close()});modal.querySelector('#mf-refresh').onclick=loadFinance;
+ const nf2=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2});
+ function card(label,value,unit,change,updated){const ch=Number(change);const trend=Number.isFinite(ch)?' · '+(ch>0?'▲ ':ch<0?'▼ ':'')+nf2.format(ch)+'٪':'';return '<article class="mf-card"><small>'+label+'</small><b>'+value+'</b><span>'+unit+trend+(updated?' · '+updated:'')+'</span></article>'}
+ async function loadFinance(){
+  const status=modal.querySelector('#mf-status'),host=modal.querySelector('#mf-cards'),refresh=modal.querySelector('#mf-refresh');
+  refresh.disabled=true;status.textContent='در حال دریافت داده‌های بازار…';
+  try{
+   const base=(localStorage.getItem('metreyar.converterUrl')||'https://metreyar-converter.onrender.com').replace(/\/$/,'');
+   const res=await fetch(base+'/market/financial');if(!res.ok)throw new Error('سرویس قیمت موقتاً در دسترس نیست.');
+   const data=await res.json();const prices=data.prices||{};const out=[];
+   const fmt=(v)=>Number.isFinite(Number(v))?nf2.format(Number(v)):'—';
+   if(prices.ounce)out.push(card('طلای جهانی · هر اونس',fmt(prices.ounce.price),'دلار آمریکا',prices.ounce.change_pct,prices.ounce.updated_at||''));
+   if(prices.gram18)out.push(card('طلای ۱۸ عیار · هر گرم',fmt(prices.gram18.price),'تومان',prices.gram18.change_pct,prices.gram18.updated_at||''));
+   if(prices.gram24)out.push(card('طلای ۲۴ عیار · هر گرم',fmt(prices.gram24.price),'تومان',prices.gram24.change_pct,prices.gram24.updated_at||''));
+   if(prices.mazaneh)out.push(card('مثقال طلا',fmt(prices.mazaneh.price),'تومان',prices.mazaneh.change_pct,prices.mazaneh.updated_at||''));
+   if(prices.usd)out.push(card('دلار آزاد تهران',fmt(prices.usd.price),'تومان',prices.usd.change_pct,prices.usd.updated_at||''));
+   if(data.tedpix&&data.tedpix.value)out.push(card('شاخص کل بورس تهران',fmt(data.tedpix.value),'واحد',data.tedpix.change_pct,data.tedpix.updated_at||''));
+   host.innerHTML=out.join('')||'<p>داده‌ای از سرویس دریافت نشد.</p>';
+   status.textContent='آخرین دریافت: '+(data.updated_at?new Date(data.updated_at).toLocaleString('fa-IR'):'زمان نامشخص')+' · منبع طلا و ارز: طلاسنج';
+  }catch(err){host.innerHTML='<article class="mf-card"><small>وضعیت دریافت</small><b>فعلاً داده زنده دریافت نشد</b><span>برای مشاهده مستقیم از پیوندهای منابع استفاده کنید.</span></article>';status.textContent=err.message||'خطا در دریافت اطلاعات.'}
+  finally{refresh.disabled=false}
+ }
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initFinancialMarket);else initFinancialMarket();
+
 })();
