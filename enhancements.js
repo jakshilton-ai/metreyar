@@ -223,4 +223,42 @@ function showFiles(){
 const originalOpenPanel=openPanel;
 openPanel=function(which){if(which==='files'){overlay.classList.add('open');document.body.style.overflow='hidden';showFiles();translate(overlay);return}originalOpenPanel(which)};
 
+
+/* Cloud PDF conversion UI — requires the separately deployed Render service. */
+const convertBtn=document.createElement('button');
+convertBtn.type='button';convertBtn.textContent='☁️ تبدیل فایل به PDF';
+convertBtn.onclick=showCloudConverter;
+bar.appendChild(convertBtn);
+function showCloudConverter(){
+ const old=document.getElementById('mt-cloud-converter');if(old)old.remove();
+ const wrap=document.createElement('div');wrap.id='mt-cloud-converter';wrap.className='mt-overlay open';
+ wrap.innerHTML='<section class="mt-dialog" role="dialog" aria-modal="true" aria-label="تبدیل فایل به PDF"><header><h2>تبدیل فایل مهندسی به PDF</h2><button type="button" id="mt-cloud-close">بستن ✕</button></header><p>در نسخه فعلی، PDF و DXF پشتیبانی می‌شوند. فایل DWG، SAFE و STAAD.Pro مستقیماً تبدیل نمی‌شوند؛ برای آن‌ها باید از نرم‌افزار اصلی خروجی DXF یا PDF بگیرید.</p><label for="mt-converter-url">نشانی سرور تبدیل</label><input id="mt-converter-url" type="url" placeholder="https://your-service.onrender.com" style="width:100%;direction:ltr" /><p class="n">نشانی سرور پس از راه‌اندازی Render از داشبورد آن دریافت می‌شود.</p><label for="mt-converter-file">انتخاب فایل PDF یا DXF</label><input id="mt-converter-file" type="file" accept=".pdf,.dxf" style="width:100%" /><label style="display:flex;gap:8px;align-items:flex-start"><input id="mt-cloud-consent" type="checkbox" style="width:auto;flex:0 0 auto;margin-top:6px" /><span>رضایت می‌دهم فایل انتخابی برای تبدیل به سرور ارسال شود. می‌دانم فایل ممکن است حاوی اطلاعات محرمانه پروژه باشد.</span></label><button type="button" id="mt-cloud-submit" class="go">ارسال و تبدیل به PDF</button><div id="mt-cloud-status" class="mt-result" aria-live="polite">برای شروع، نشانی سرور را وارد کنید.</div></section>';
+ document.body.appendChild(wrap);
+ const urlInput=wrap.querySelector('#mt-converter-url'),fileInput=wrap.querySelector('#mt-converter-file'),consent=wrap.querySelector('#mt-cloud-consent'),status=wrap.querySelector('#mt-cloud-status'),submit=wrap.querySelector('#mt-cloud-submit');
+ urlInput.value=localStorage.getItem('metreyar.converterUrl')||'';
+ wrap.querySelector('#mt-cloud-close').onclick=()=>wrap.remove();
+ wrap.addEventListener('click',ev=>{if(ev.target===wrap)wrap.remove()});
+ submit.onclick=async()=>{
+  const base=urlInput.value.trim().replace(/\/+$/,'');const file=fileInput.files&&fileInput.files[0];
+  if(!/^https:\/\//i.test(base)){status.textContent='نشانی معتبر HTTPS سرور را وارد کنید.';return}
+  if(!file){status.textContent='ابتدا یک فایل PDF یا DXF انتخاب کنید.';return}
+  if(!consent.checked){status.textContent='برای ارسال فایل، رضایت خود را تأیید کنید.';return}
+  if(file.size>20*1024*1024){status.textContent='حداکثر حجم فایل ۲۰ مگابایت است.';return}
+  localStorage.setItem('metreyar.converterUrl',base);submit.disabled=true;status.textContent='در حال ارسال و تبدیل فایل…';
+  try{
+   const health=await fetch(base+'/health');if(!health.ok)throw new Error('سرور در دسترس نیست.');
+   const data=new FormData();data.append('file',file,file.name);
+   const response=await fetch(base+'/convert',{method:'POST',body:data});
+   if(!response.ok){let msg='تبدیل انجام نشد.';try{const j=await response.json();msg=j.detail||msg}catch(_){}throw new Error(msg)}
+   const blob=await response.blob();if(blob.type!=='application/pdf')throw new Error('پاسخ سرور PDF معتبر نیست.');
+   const disposition=response.headers.get('content-disposition')||'',match=disposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+   const filename=match?decodeURIComponent(match[1].replace(/"/g,'')):file.name.replace(/\.[^.]+$/,'.pdf');
+   const objectUrl=URL.createObjectURL(blob),a=document.createElement('a');a.href=objectUrl;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+   status.textContent='PDF آماده شد و دانلود آن آغاز شد. فایل ارسالی در سرور به‌صورت دائمی نگهداری نمی‌شود.';
+  }catch(err){status.textContent='خطا: '+(err.message||'ارتباط با سرور برقرار نشد.');}
+  finally{submit.disabled=false}
+ };
+ translate(wrap);
+}
+
 })();
