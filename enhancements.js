@@ -225,6 +225,19 @@ openPanel=function(which){if(which==='files'){overlay.classList.add('open');docu
 
 
 /* Cloud PDF conversion UI — requires the separately deployed Render service. */
+
+/* Local-browser DWG conversion shortcut (third-party tool; file is processed in the browser). */
+const dwgLocalBtn=document.createElement('button');
+dwgLocalBtn.id='mt-dwg-local-converter';
+dwgLocalBtn.type='button';
+dwgLocalBtn.textContent='📐 تبدیل DWG بدون ثبت‌نام';
+dwgLocalBtn.title='باز کردن ابزار تبدیل DWG در مرورگر؛ سرویس بیرونی است';
+dwgLocalBtn.onclick=()=>{
+ if(!confirm('ابزار تبدیل در یک وب‌سایت بیرونی باز می‌شود. طبق اعلام آن وب‌سایت، فایل در مرورگر پردازش می‌شود و بارگذاری نمی‌شود. برای نقشه‌های محرمانه ابتدا سیاست حریم خصوصی را بررسی کنید. ادامه می‌دهید؟'))return;
+ window.open('https://drawcad.org/dwg-to-pdf','_blank','noopener,noreferrer');
+};
+bar.appendChild(dwgLocalBtn);
+
 const convertBtn=document.createElement('button');
 convertBtn.type='button';convertBtn.textContent='☁️ تبدیل فایل به PDF';
 convertBtn.onclick=showCloudConverter;
