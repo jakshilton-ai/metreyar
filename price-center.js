@@ -121,13 +121,13 @@ function initMetreyarTicker(){
  #mt-market-ticker .mtt-item{font-size:12px;font-weight:700;display:inline-flex;gap:7px;align-items:center}
  #mt-market-ticker .mtt-item b{color:#ffe08a;font-variant-numeric:tabular-nums}
  #mt-market-ticker .mtt-dot{width:5px;height:5px;border-radius:50%;background:#42d6a4;display:inline-block}
- #mt-market-ticker .mtt-state{font-size:11px;color:#dcecf5;padding:0 10px;white-space:nowrap}
+ #mt-market-ticker .mtt-state{font-size:11px;color:#dcecf5;padding:0 10px;white-space:nowrap} #mt-market-ticker .mtt-credit{flex:0 0 auto;color:#b9f3df;font-size:10px;text-decoration:underline;padding:0 8px;white-space:nowrap}
  @keyframes mtTickerMove{from{transform:translateX(0)}to{transform:translateX(50%)}}
  @media(prefers-reduced-motion:reduce){#mt-market-ticker .mtt-track{animation:none}}
  `;
  document.head.appendChild(css);
  const bar=document.createElement('div');bar.id='mt-market-ticker';bar.setAttribute('aria-label','نوار متحرک قیمت بازار');
- bar.innerHTML='<span class="mtt-label">بازار امروز</span><div class="mtt-window"><div class="mtt-track" id="mtt-track"><span class="mtt-item">در حال دریافت قیمت آنلاین…</span></div></div><span class="mtt-state" id="mtt-state">اتصال</span>';
+ bar.innerHTML='<span class="mtt-label">بازار امروز</span><div class="mtt-window"><div class="mtt-track" id="mtt-track"><span class="mtt-item">در حال دریافت قیمت آنلاین…</span></div></div><span class="mtt-state" id="mtt-state">اتصال</span><a class="mtt-credit" href="https://talasanj.info" target="_blank" rel="noopener">قیمت‌ها از طلاسنج</a>';
  document.body.insertBefore(bar,document.body.firstChild);
  const track=bar.querySelector('#mtt-track'),state=bar.querySelector('#mtt-state');
  const fmt=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2}).format(n):'—'};
