@@ -245,32 +245,55 @@ bar.appendChild(convertBtn);
 function showCloudConverter(){
  const old=document.getElementById('mt-cloud-converter');if(old)old.remove();
  const wrap=document.createElement('div');wrap.id='mt-cloud-converter';wrap.className='mt-overlay open';
- wrap.innerHTML='<section class="mt-dialog" role="dialog" aria-modal="true" aria-label="تبدیل فایل به PDF"><header><h2>تبدیل فایل مهندسی به PDF</h2><button type="button" id="mt-cloud-close">بستن ✕</button></header><p>PDF و DXF در حال حاضر پشتیبانی می‌شوند. دریافت DWG نیز اضافه شده، اما تبدیل آن پس از اتصال حساب Autodesk APS و فعال‌سازی موتور AutoCAD انجام می‌شود. SAFE و STAAD.Pro فعلاً باید از نرم‌افزار اصلی به PDF خروجی گرفته شوند.</p><label for="mt-converter-url">نشانی سرور تبدیل</label><input id="mt-converter-url" type="url" placeholder="https://your-service.onrender.com" style="width:100%;direction:ltr" /><p class="n">نشانی سرور پس از راه‌اندازی Render از داشبورد آن دریافت می‌شود.</p><label for="mt-converter-file">انتخاب فایل PDF یا DXF</label><input id="mt-converter-file" type="file" accept=".pdf,.dxf,.dwg" style="width:100%" /><label style="display:flex;gap:8px;align-items:flex-start"><input id="mt-cloud-consent" type="checkbox" style="width:auto;flex:0 0 auto;margin-top:6px" /><span>رضایت می‌دهم فایل انتخابی برای تبدیل به سرور ارسال شود. می‌دانم فایل ممکن است حاوی اطلاعات محرمانه پروژه باشد.</span></label><button type="button" id="mt-cloud-submit" class="go">ارسال و تبدیل به PDF</button><div id="mt-cloud-status" class="mt-result" aria-live="polite">برای شروع، نشانی سرور را وارد کنید.</div></section>';
+ wrap.innerHTML='<section class="mt-dialog" role="dialog" aria-modal="true" aria-label="تبدیل فایل به PDF"><header><h2>تبدیل فایل مهندسی به PDF</h2><button type="button" id="mt-cloud-close">بستن ✕</button></header><p>فایل‌های DWG و DXF با سرویس CloudConvert به PDF تبدیل می‌شوند. PDF را می‌توانید مستقیماً دریافت کنید. فایل‌های SAFE و STAAD.Pro فعلاً باید از نرم‌افزار اصلی به PDF خروجی گرفته شوند.</p><label for="mt-converter-url">نشانی سرور تبدیل</label><input id="mt-converter-url" type="url" placeholder="https://your-service.onrender.com" style="width:100%;direction:ltr" /><p class="n">نشانی سرور پس از راه‌اندازی Render از داشبورد آن دریافت می‌شود.</p><label for="mt-converter-file">انتخاب فایل DWG، DXF یا PDF</label><input id="mt-converter-file" type="file" accept=".pdf,.dxf,.dwg" style="width:100%" /><label style="display:flex;gap:8px;align-items:flex-start"><input id="mt-cloud-consent" type="checkbox" style="width:auto;flex:0 0 auto;margin-top:6px" /><span>رضایت می‌دهم فایل انتخابی برای تبدیل به سرور ارسال شود. می‌دانم فایل ممکن است حاوی اطلاعات محرمانه پروژه باشد.</span></label><button type="button" id="mt-cloud-submit" class="go">ارسال و تبدیل به PDF</button><div id="mt-cloud-status" class="mt-result" aria-live="polite">برای شروع، نشانی سرور را وارد کنید.</div></section>';
  document.body.appendChild(wrap);
  const urlInput=wrap.querySelector('#mt-converter-url'),fileInput=wrap.querySelector('#mt-converter-file'),consent=wrap.querySelector('#mt-cloud-consent'),status=wrap.querySelector('#mt-cloud-status'),submit=wrap.querySelector('#mt-cloud-submit');
  urlInput.value=localStorage.getItem('metreyar.converterUrl')||'';
  wrap.querySelector('#mt-cloud-close').onclick=()=>wrap.remove();
  wrap.addEventListener('click',ev=>{if(ev.target===wrap)wrap.remove()});
  submit.onclick=async()=>{
-  const base=urlInput.value.trim().replace(/\/+$/,'');const file=fileInput.files&&fileInput.files[0];
-  if(!/^https:\/\//i.test(base)){status.textContent='نشانی معتبر HTTPS سرور را وارد کنید.';return}
-  if(!file){status.textContent='ابتدا یک فایل PDF یا DXF انتخاب کنید.';return}
+  const base=urlInput.value.trim().replace(/\\/+$/,'');const file=fileInput.files&&fileInput.files[0];
+  if(!/^https:\\/\\//i.test(base)){status.textContent='نشانی معتبر HTTPS سرور را وارد کنید.';return}
+  if(!file){status.textContent='ابتدا یک فایل DWG، DXF یا PDF انتخاب کنید.';return}
   if(!consent.checked){status.textContent='برای ارسال فایل، رضایت خود را تأیید کنید.';return}
-  if(file.size>20*1024*1024){status.textContent='حداکثر حجم فایل ۲۰ مگابایت است.';return}
+  if(file.size>25*1024*1024){status.textContent='حداکثر حجم فایل ۲۵ مگابایت است.';return}
   localStorage.setItem('metreyar.converterUrl',base);submit.disabled=true;status.textContent='در حال ارسال و تبدیل فایل…';
   try{
    const health=await fetch(base+'/health');if(!health.ok)throw new Error('سرور در دسترس نیست.');
-   const data=new FormData();data.append('file',file,file.name);
-   const response=await fetch(base+'/convert',{method:'POST',body:data});
-   if(!response.ok){let msg='تبدیل انجام نشد.';try{const j=await response.json();msg=j.detail||msg}catch(_){}throw new Error(msg)}
-   const blob=await response.blob();if(blob.type!=='application/pdf')throw new Error('پاسخ سرور PDF معتبر نیست.');
-   const disposition=response.headers.get('content-disposition')||'',match=disposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
-   const filename=match?decodeURIComponent(match[1].replace(/"/g,'')):file.name.replace(/\.[^.]+$/,'.pdf');
-   const objectUrl=URL.createObjectURL(blob),a=document.createElement('a');a.href=objectUrl;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
-   status.textContent='PDF آماده شد و دانلود آن آغاز شد. فایل ارسالی در سرور به‌صورت دائمی نگهداری نمی‌شود.';
+   const ext=file.name.split('.').pop().toLowerCase();
+   if(ext==='dwg'||ext==='dxf'){
+    const data=new FormData();data.append('file',file,file.name);
+    const response=await fetch(base+'/convert',{method:'POST',body:data});
+    const result=await response.json();
+    if(!response.ok||!result.ok)throw new Error(result.detail||result.error||'شروع تبدیل ناموفق بود.');
+    const jobId=result.jobId;if(!jobId)throw new Error('شناسه تبدیل از سرور دریافت نشد.');
+    status.textContent='فایل ارسال شد؛ در حال تبدیل در CloudConvert…';
+    let finalResult=null;
+    for(let attempt=0;attempt<60;attempt++){
+     await new Promise(resolve=>setTimeout(resolve,2000));
+     const check=await fetch(base+'/cloudconvert/status/'+encodeURIComponent(jobId));
+     const state=await check.json();
+     if(!check.ok||!state.ok)throw new Error(state.detail||state.error||'بررسی وضعیت تبدیل ناموفق بود.');
+     if(state.status==='finished'){finalResult=state;break}
+     if(state.status==='error')throw new Error(state.error||'CloudConvert نتوانست فایل را تبدیل کند.');
+     status.textContent='در حال تبدیل فایل… ('+(attempt+1)+'/60)';
+    }
+    if(!finalResult)throw new Error('تبدیل بیش از دو دقیقه طول کشید؛ دوباره تلاش کنید.');
+    if(!finalResult.downloadUrl)throw new Error('لینک دریافت PDF از سرویس دریافت نشد.');
+    const link=document.createElement('a');link.href=finalResult.downloadUrl;link.target='_blank';link.rel='noopener noreferrer';link.textContent='دریافت فایل PDF';
+    status.textContent='تبدیل با موفقیت انجام شد. ';status.appendChild(link);
+   }else if(ext==='pdf'){
+    const data=new FormData();data.append('file',file,file.name);
+    const response=await fetch(base+'/convert',{method:'POST',body:data});
+    if(!response.ok){let msg='تبدیل انجام نشد.';try{const j=await response.json();msg=j.detail||msg}catch(_){}throw new Error(msg)}
+    const blob=await response.blob();if(blob.type!=='application/pdf')throw new Error('پاسخ سرور PDF معتبر نیست.');
+    const objectUrl=URL.createObjectURL(blob),a=document.createElement('a');a.href=objectUrl;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+    status.textContent='فایل PDF آماده شد و دانلود آن آغاز شد.';
+   }else{throw new Error('فقط فایل‌های DWG، DXF و PDF پشتیبانی می‌شوند.')}
   }catch(err){status.textContent='خطا: '+(err.message||'ارتباط با سرور برقرار نشد.');}
   finally{submit.disabled=false}
  };
+
  translate(wrap);
 }
 
