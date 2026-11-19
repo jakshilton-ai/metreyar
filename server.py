@@ -70,6 +70,20 @@ async def financial_market():
             result["prices"] = payload.get("prices", {})
             result["updated_at"] = payload.get("updated_at")
             result["attribution"] = {"text": "قیمت‌ها از طلاسنج", "url": "https://talasanj.info"}
+            try:
+                tse = await client.get("https://cdn.tsetmc.com/api/MarketData/GetMarketOverview/0", headers={"User-Agent": "Mozilla/5.0"})
+                tse.raise_for_status()
+                overview = tse.json().get("marketOverview", {})
+                if isinstance(overview, list):
+                    overview = overview[0] if overview else {}
+                if isinstance(overview, dict) and overview.get("indexLastValue") is not None:
+                    result["tedpix"] = {
+                        "value": overview.get("indexLastValue"),
+                        "change_pct": overview.get("indexChange"),
+                        "updated_at": overview.get("dEven")
+                    }
+            except (httpx.HTTPError, ValueError, AttributeError):
+                pass
         except (httpx.HTTPError, ValueError):
             if _finance_cache["data"] is not None:
                 stale = dict(_finance_cache["data"])
