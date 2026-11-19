@@ -256,7 +256,7 @@ function showCloudConverter(){
   if(!base.startsWith('https://')){status.textContent='نشانی معتبر HTTPS سرور را وارد کنید.';return}
   if(!file){status.textContent='ابتدا یک فایل DWG، DXF یا PDF انتخاب کنید.';return}
   if(!consent.checked){status.textContent='برای ارسال فایل، رضایت خود را تأیید کنید.';return}
-  if(file.size>25*1024*1024){status.textContent='حداکثر حجم فایل ۲۵ مگابایت است.';return}
+  if(file.size>20*1024*1024){status.textContent='حداکثر حجم فایل ۲۰ مگابایت است.';return}
   localStorage.setItem('metreyar.converterUrl',base);submit.disabled=true;status.textContent='در حال ارسال و تبدیل فایل…';
   try{
    const health=await fetch(base+'/health');if(!health.ok)throw new Error('سرور در دسترس نیست.');
