@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: metreyar-converter
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: MAX_UPLOAD_BYTES
+        value: "20971520"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "5"
+      - key: ALLOWED_ORIGINS
+        value: "https://jakshilton-ai.github.io"
