@@ -50,6 +50,36 @@ def cleanup(path: str):
     except Exception:
         pass
 
+
+# Cached public financial quotes. The upstream free endpoint is intentionally polled
+# infrequently; never expose provider keys in the browser.
+_finance_cache = {"at": 0.0, "data": None}
+
+@app.get("/market/financial")
+async def financial_market():
+    now = time.time()
+    if _finance_cache["data"] is not None and now - _finance_cache["at"] < 600:
+        return _finance_cache["data"]
+    import httpx
+    result = {"ok": True, "provider": "Talasanj", "prices": {}, "updated_at": None}
+    async with httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=8.0)) as client:
+        try:
+            response = await client.get("https://talasanj.info/api/v1/prices?unit=toman")
+            response.raise_for_status()
+            payload = response.json()
+            result["prices"] = payload.get("prices", {})
+            result["updated_at"] = payload.get("updated_at")
+            result["attribution"] = {"text": "قیمت‌ها از طلاسنج", "url": "https://talasanj.info"}
+        except (httpx.HTTPError, ValueError):
+            if _finance_cache["data"] is not None:
+                stale = dict(_finance_cache["data"])
+                stale["stale"] = True
+                return stale
+            raise HTTPException(502, "دریافت قیمت طلا و ارز از منبع بازار ناموفق بود.")
+    _finance_cache["at"] = now
+    _finance_cache["data"] = result
+    return result
+
 @app.get("/health")
 def health():
     return {"ok": True, "service": "metreyar-converter", "version": APP_VERSION}
