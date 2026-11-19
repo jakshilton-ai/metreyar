@@ -138,7 +138,7 @@ function initMetreyarTicker(){
    const r=await fetch(base+'/market/financial',{cache:'no-store'});if(!r.ok)throw new Error('منبع قیمت فعلاً پاسخ نمی‌دهد');
    const d=await r.json(),p=d.prices||{},items=[];
    const add=(k,label,unit)=>{if(p[k]&&p[k].price!=null)items.push(item(label,p[k].price,unit))};
-   add('ounce','اونس جهانی طلا',');
+   add('ounce','اونس جهانی طلا','دلار');
    add('gram18','طلای ۱۸ عیار','تومان');
    add('gram24','طلای ۲۴ عیار','تومان');
    add('mazaneh','مثقال طلا','تومان');
