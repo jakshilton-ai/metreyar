@@ -252,8 +252,8 @@ function showCloudConverter(){
  wrap.querySelector('#mt-cloud-close').onclick=()=>wrap.remove();
  wrap.addEventListener('click',ev=>{if(ev.target===wrap)wrap.remove()});
  submit.onclick=async()=>{
-  const base=urlInput.value.trim().replace(/\/+$/,'');const file=fileInput.files&&fileInput.files[0];
-  if(!/^https:\/\/\//i.test(base)){status.textContent='نشانی معتبر HTTPS سرور را وارد کنید.';return}
+  let base=urlInput.value.trim();while(base.endsWith('/'))base=base.slice(0,-1);const file=fileInput.files&&fileInput.files[0];
+  if(!base.startsWith('https://')){status.textContent='نشانی معتبر HTTPS سرور را وارد کنید.';return}
   if(!file){status.textContent='ابتدا یک فایل DWG، DXF یا PDF انتخاب کنید.';return}
   if(!consent.checked){status.textContent='برای ارسال فایل، رضایت خود را تأیید کنید.';return}
   if(file.size>25*1024*1024){status.textContent='حداکثر حجم فایل ۲۵ مگابایت است.';return}
