@@ -58,7 +58,7 @@ _finance_cache = {"at": 0.0, "data": None}
 @app.get("/market/financial")
 async def financial_market():
     now = time.time()
-    if _finance_cache["data"] is not None and now - _finance_cache["at"] < 600:
+    if _finance_cache["data"] is not None and now - _finance_cache["at"] < 3600:
         return _finance_cache["data"]
     import httpx
     result = {"ok": True, "provider": "Talasanj", "prices": {}, "updated_at": None}
