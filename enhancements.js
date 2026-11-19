@@ -1,30 +1,163 @@
 (()=>{'use strict';
-const $=s=>document.querySelector(s),langs={fa:'فارسی',en:'English',de:'Deutsch',ar:'العربية'};
-const maps={
-en:{'خانه':'Home','دیوارچینی':'Masonry','بتن‌ریزی':'Concrete','میلگرد':'Rebar','خاموت':'Stirrups','کاشی و سرامیک':'Tiles','موزاییک کف':'Floor tiles','سرامیک کف':'Ceramics','فوم بتن':'Foam concrete','خاک‌برداری':'Excavation','سیمانکاری':'Cement plaster','رنگ‌آمیزی':'Painting','قوطی و پروفیل':'Steel profiles','مرجع مصالح':'Material reference','راهنما':'Guide','درباره':'About','محاسبه':'Calculate','کپی نتیجه':'Copy result','یکی از ابزارها را انتخاب کنید':'Choose a tool','طول':'Length','عرض':'Width','ضخامت':'Thickness','طول دیوار':'Wall length','ارتفاع دیوار':'Wall height','درصد ضایعات':'Waste (%)','کپی لینک مایکت':'Copy Myket link'},
-de:{'خانه':'Start','دیوارچینی':'Mauerwerk','بتن‌ریزی':'Beton','میلگرد':'Bewehrungsstahl','خاموت':'Bügel','کاشی و سرامیک':'Fliesen','موزاییک کف':'Bodenplatten','سرامیک کف':'Keramik','فوم بتن':'Schaumbeton','خاک‌برداری':'Aushub','سیمانکاری':'Zementputz','رنگ‌آمیزی':'Anstrich','قوطی و پروفیل':'Stahlprofile','مرجع مصالح':'Materialreferenz','راهنما':'Anleitung','درباره':'Über','محاسبه':'Berechnen','کپی نتیجه':'Ergebnis kopieren','یکی از ابزارها را انتخاب کنید':'Werkzeug auswählen','طول':'Länge','عرض':'Breite','ضخامت':'Dicke','کپی لینک مایکت':'Myket-Link kopieren'},
-ar:{'خانه':'الرئيسية','دیوارچینی':'بناء الجدران','بتن‌ریزی':'صب الخرسانة','میلگرد':'حديد التسليح','خاموت':'الكانات','کاشی و سرامیک':'البلاط والسيراميك','موزاییک کف':'بلاط الأرضيات','سرامیک کف':'السيراميك','فوم بتن':'الخرسانة الرغوية','خاک‌برداری':'الحفر','سیمانکاری':'اللياسة','رنگ‌آمیزی':'الطلاء','قوطی و پروفیل':'المقاطع الفولاذية','مرجع مصالح':'مرجع المواد','راهنما':'الدليل','درباره':'حول التطبيق','محاسبه':'احسب','کپی نتیجه':'نسخ النتيجة','یکی از ابزارها را انتخاب کنید':'اختر أداة','طول':'الطول','عرض':'العرض','ضخامت':'السماكة','کپی لینک مایکت':'نسخ رابط Myket'}};
-const originals=new WeakMap();
-function translate(root){let lang=localStorage.getItem('metreyar.lang')||'fa',d=maps[lang]||{};document.documentElement.lang=lang;document.documentElement.dir=(lang==='fa'||lang==='ar')?'rtl':'ltr';document.body.style.direction=document.documentElement.dir;let w=document.createTreeWalker(root||document.body,NodeFilter.SHOW_TEXT);while(w.nextNode()){let n=w.currentNode;if(!originals.has(n))originals.set(n,n.nodeValue);let s=originals.get(n).trim();if(d[s])n.nodeValue=n.nodeValue.replace(s,d[s]);}}
-function chooseLang(l){localStorage.setItem('metreyar.lang',l);location.reload()}
-const st=document.createElement('style');st.textContent='#mt-extra{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;padding:8px}#mt-extra button,#mt-extra select,.mt-dialog button{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx)}#mt-back{display:none;background:var(--pri)!important;color:var(--prc)!important}.mt-overlay{display:none;position:fixed;z-index:9999;inset:0;background:#071323aa;align-items:center;justify-content:center;padding:12px}.mt-overlay.open{display:flex}.mt-dialog{width:min(620px,100%);max-height:88vh;overflow:auto;background:var(--card);color:var(--tx);border-radius:18px;padding:16px}.mt-dialog header{display:flex;justify-content:space-between;align-items:center;padding:0 0 12px}.mt-dialog h2{font-size:19px}.mt-dialog input{font:inherit;padding:10px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx)}.mt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}.mt-grid button{padding:13px}.mt-result{padding:12px;background:var(--res);border-radius:10px;margin-top:10px}.mt-dialog details{border-top:1px solid var(--bd);padding:9px 0}';
-document.head.appendChild(st);
-const bar=document.createElement('div');bar.id='mt-extra';let sel=document.createElement('select');sel.innerHTML='<option value="fa">فارسی</option><option value="en">English</option><option value="de">Deutsch</option><option value="ar">العربية</option>';sel.value=localStorage.getItem('metreyar.lang')||'fa';sel.onchange=()=>chooseLang(sel.value);
-const back=document.createElement('button');back.id='mt-back';back.textContent='↩ برگشت به گزینه‌ها';
-const bcal=document.createElement('button');bcal.textContent='📅 تقویم شمسی / میلادی';bcal.onclick=()=>open('calendar');
-const bcalc=document.createElement('button');bcalc.textContent='🧮 ماشین‌حساب';bcalc.onclick=()=>open('calc');
-const breg=document.createElement('button');breg.textContent='📚 آیین‌نامه نظام مهندسی';breg.onclick=()=>open('regs');
-bar.append(sel,back,bcal,bcalc,breg);document.querySelector('header').insertAdjacentElement('afterend',bar);
-const ov=document.createElement('div');ov.className='mt-overlay';ov.innerHTML='<section class="mt-dialog"><header><h2 id="mt-title"></h2><button id="mt-close">بستن ✕</button></header><div id="mt-body"></div></section>';document.body.appendChild(ov);
-function close(){ov.classList.remove('open');document.body.style.overflow=''}document.getElementById('mt-close').onclick=close;ov.onclick=e=>{if(e.target===ov)close()};
-function open(which){ov.classList.add('open');document.body.style.overflow='hidden';let body=$('#mt-body');body.innerHTML='';
-if(which==='calc'){$('#mt-title').textContent='ماشین‌حساب مهندسی';body.innerHTML='<input id="mt-expr" placeholder="مثلاً (12.5*4)+8" style="width:100%;direction:ltr"><div class="mt-grid">'+['7','8','9','÷','4','5','6','×','1','2','3','−','0','.','%','+','(',')','^','√','C','⌫','='].map(x=>'<button data-k="'+x+'">'+x+'</button>').join('')+'</div><div class="mt-result" id="mt-answer">نتیجه</div><small>توابع مجاز: sqrt(عدد)، pi و توان ^</small>';let inp=$('#mt-expr'),ans=$('#mt-answer');body.querySelectorAll('[data-k]').forEach(btn=>btn.onclick=()=>{let k=btn.dataset.k;if(k==='C'){inp.value='';ans.textContent='';return}if(k==='⌫'){inp.value=inp.value.slice(0,-1);return}if(k==='='){try{let x=inp.value.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/\^/g,'**').replace(/sqrt\(/g,'Math.sqrt(').replace(/\bpi\b/g,'Math.PI');if(!/^[0-9+\-*/().\sA-Za-z]*$/.test(x))throw 0;x=x.replace(/Math\\.(?:sqrt|PI)/g,'');if(/[A-Za-z]/.test(x))throw 0;let v=Function('"use strict";return ('+x+')')();if(!Number.isFinite(v))throw 0;ans.textContent='= '+v}catch(e){ans.textContent='عبارت نامعتبر است'}return}inp.value+=({'√':'sqrt(','÷':'/','×':'*','−':'-','%':'/100'}[k]||k)});}
-if(which==='calendar'){$('#mt-title').textContent='تقویم شمسی و میلادی';body.innerHTML='<p>تاریخ را در یکی از تقویم‌ها وارد کنید تا معادل آن نمایش داده شود.</p><p>میلادی: <input id="mt-gdate" type="date"></p><p>شمسی: <input id="mt-jdate" placeholder="۱۴۰۵/۰۸/۲۸" dir="ltr"></p><div class="mt-result" id="mt-dateout"></div>';let g=$('#mt-gdate'),j=$('#mt-jdate'),o=$('#mt-dateout');function fmt(d){return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')}function gtoj(y,m,d){let a=[0,31,59,90,120,151,181,212,243,273,304,334],jy=y<=1600?0:979;y-=y<=1600?621:1600;let y2=m>2?y+1:y;jy+=33*Math.floor(y/33)+4*Math.floor((y%33+3)/4)+Math.floor((y2%4+3)/4);let z=365*y+Math.floor((y2+3)/4)-Math.floor((y2+99)/100)+Math.floor((y2+399)/400)-80+d+a[m-1];jy+=33*Math.floor(z/12053);z%=12053;jy+=4*Math.floor(z/1461);z%=1461;if(z>365){jy+=Math.floor((z-1)/365);z=(z-1)%365}let jm=z<186?1+Math.floor(z/31):7+Math.floor((z-186)/30),jd=1+(z<186?z%31:(z-186)%30);return [jy,jm,jd]}function jtog(y,m,d){y+=1595;let z=-355668+365*y+Math.floor(y/33)*8+Math.floor((y%33+3)/4)+d+(m<7?(m-1)*31:(m-7)*30+186),gy=400*Math.floor(z/146097);z%=146097;if(z>36524){gy+=100*Math.floor(--z/36524);z%=36524;if(z>=365)z++}gy+=4*Math.floor(z/1461);z%=1461;if(z>365){gy+=Math.floor((z-1)/365);z=(z-1)%365}let gd=z+1,ds=[0,31,(gy%4===0&&gy%100!==0)||gy%400===0?29:28,31,30,31,30,31,31,30,31,30,31],gm=1;while(gm<=12&&gd>ds[gm]){gd-=ds[gm];gm++}return [gy,gm,gd]}g.value=new Date().toISOString().slice(0,10);function fromG(){let a=g.value.split('-').map(Number),v=gtoj(a[0],a[1],a[2]);j.value=v.join('/');o.textContent='میلادی: '+g.value+' | شمسی: '+v.join('/')}g.onchange=fromG;j.onchange=()=>{let a=j.value.replace(/-/g,'/').split('/').map(Number);if(a.length!==3||a.some(x=>!Number.isFinite(x))){o.textContent='تاریخ شمسی معتبر وارد کنید';return}let v=jtog(a[0],a[1],a[2]);g.value=v[0]+'-'+String(v[1]).padStart(2,'0')+'-'+String(v[2]).padStart(2,'0');o.textContent='شمسی: '+a.join('/')+' | میلادی: '+g.value};fromG()}
-if(which==='regs'){$('#mt-title').textContent='فهرست مباحث مقررات ملی ساختمان';let names=['تعاریف','نظامات اداری','حفاظت ساختمان‌ها در مقابل حریق','الزامات عمومی ساختمان','مصالح و فرآورده‌های ساختمانی','بارهای وارد بر ساختمان','ژئوتکنیک و مهندسی پی','طرح و اجرای ساختمان‌های با مصالح بنایی','طرح و اجرای ساختمان‌های بتن‌آرمه','طرح و اجرای ساختمان‌های فولادی','صنعتی‌سازی ساختمان','ایمنی و حفاظت کار در حین اجرا','طرح و اجرای تأسیسات برقی','تأسیسات مکانیکی','آسانسورها و پلکان برقی','تأسیسات بهداشتی','لوله‌کشی گاز طبیعی','عایق‌بندی و تنظیم صدا','صرفه‌جویی در مصرف انرژی','علائم و تابلوها','پدافند غیرعامل','مراقبت و نگهداری ساختمان‌ها','الزامات ترافیکی ساختمان','انطباق شهری ساختمان'];body.innerHTML='<p>فهرست موضوعی برای جست‌وجوی سریع است. متن کامل، اصلاحیه‌ها و ویرایش لازم‌الاجرا را از مرجع رسمی مقررات ملی ساختمان بررسی کنید.</p><input id="mt-regq" placeholder="جست‌وجوی مبحث..." style="width:100%"><div id="mt-reglist">'+names.map((n,i)=>'<details><summary>مبحث '+(i+1)+' – '+n+'</summary><p>'+n+'. برای جزئیات طراحی و اجرا، متن رسمی آخرین ویرایش و اصلاحیه‌های ابلاغی را ملاک قرار دهید.</p></details>').join('')+'</div><div class="mt-result">این فهرست جایگزین متن رسمی آیین‌نامه، محاسبات مهندس مسئول یا آخرین اصلاحیه‌های ابلاغی نیست.</div>';$('#mt-regq').oninput=e=>body.querySelectorAll('#mt-reglist details').forEach(x=>x.style.display=x.innerText.toLowerCase().includes(e.target.value.toLowerCase())?'':'none')}
+const $=s=>document.querySelector(s);
+const languageNames={fa:'فارسی',en:'English',de:'Deutsch',ar:'العربية'};
+const dict={
+en:{
+'خانه':'Home','دیوارچینی':'Masonry','بتن‌ریزی':'Concrete','میلگرد':'Rebar','خاموت':'Stirrups','کاشی و سرامیک':'Tiles & ceramics','موزاییک کف':'Floor tiles','سرامیک کف':'Floor ceramic','فوم بتن':'Foam concrete','خیز مثبت و منفی دال':'Slab camber / deflection','خاک‌برداری':'Excavation','سیمانکاری':'Cement plaster','رنگ‌آمیزی':'Painting','قوطی و پروفیل':'Hollow sections & profiles','برآورد سیم‌کشی':'Electrical wiring estimate','بار و جریان برق':'Electrical load & current','مرجع مصالح':'Material reference','راهنما':'Guide','درباره':'About','محاسبه':'Calculate','کپی نتیجه':'Copy result','یکی از ابزارها را انتخاب کنید':'Choose a tool','طول':'Length','عرض':'Width','ضخامت':'Thickness','طول دیوار':'Wall length','ارتفاع دیوار':'Wall height','مساحت بازشوها':'Opening area','تعداد در هر متر مربع':'Units per square metre','درصد ضایعات':'Waste (%)','سیمان در هر متر مکعب':'Cement per cubic metre','کیسه سیمان (۵۰ کیلویی)':'50 kg cement bags','تعداد شاخه':'Number of bars','طول هر شاخه':'Bar length','قطر میلگرد':'Rebar diameter','مساحت سطح':'Surface area','طول کاشی':'Tile length','عرض کاشی':'Tile width','درصد پرت و شکستگی':'Breakage / waste (%)','مساحت کف':'Floor area','تعداد در هر بسته':'Units per pack','ضخامت بستر ملات':'Mortar bed thickness','سیمان مصرفی ملات در هر متر مکعب':'Cement per m³ of mortar','ماسه مصرفی در هر متر مکعب ملات':'Sand per m³ of mortar','ضخامت فوم بتن':'Foam concrete thickness','چگالی هدف':'Target density','مایع کف‌زا':'Foaming agent','دهانه دال':'Slab span','مخرج نسبت خیز مثبت (L/n)':'Positive camber ratio denominator (L/n)','مخرج نسبت خیز منفی (L/n)':'Negative deflection ratio denominator (L/n)','طول المان (تیر/ستون)':'Member length (beam/column)','فاصله خاموت‌ها':'Stirrup spacing','عرض مقطع':'Section width','ارتفاع مقطع':'Section depth','پوشش بتن':'Concrete cover','ضریب تورم خاک':'Soil swell factor','ظرفیت کامیون':'Truck capacity','تعداد دست':'Number of coats','پوشش هر لیتر در هر دست':'Coverage per litre per coat','بعد اول':'First dimension','بعد دوم':'Second dimension','ضخامت جداره':'Wall thickness','مساحت واحد / طبقه':'Floor area','تعداد نقاط روشنایی':'Lighting points','تعداد پریزها':'Socket outlets','میانگین مسیر هر نقطه روشنایی':'Average lighting cable run','میانگین مسیر هر پریز':'Average socket cable run','تعداد رشته سیم در هر مسیر':'Conductors per run','توان کل تجهیزات متصل':'Total connected load','ولتاژ نامی':'Rated voltage','ضریب توان (cos φ)':'Power factor (cos φ)','ضریب هم‌زمانی':'Demand factor','متر':'m','متر مربع':'m²','متر مکعب':'m³','سانتی‌متر':'cm','میلی‌متر':'mm','کیلوگرم':'kg','کیلوگرم بر متر مکعب':'kg/m³','عدد':'pcs','کیسه':'bags','بسته':'packs','لیتر':'L','آمپر':'A','وات':'W','ولت':'V','نقطه':'points','رشته':'conductors','سفر':'trips','قیمت هر عدد (تومان)':'Price per unit (Toman)','قیمت هر متر مکعب بتن (تومان)':'Concrete price per m³ (Toman)','قیمت هر کیلوگرم (تومان)':'Price per kg (Toman)','قیمت هر متر مربع (تومان)':'Price per m² (Toman)','قیمت هر کارتن سرامیک (تومان)':'Price per carton (Toman)','قیمت هر متر مکعب (تومان)':'Price per m³ (Toman)','قیمت هر لیتر (تومان)':'Price per litre (Toman)','قیمت اجرای هر متر مربع (تومان)':'Installation price per m² (Toman)','کپی لینک مایکت':'Copy Myket link','♫ موسیقی آرام: خاموش':'♫ Calm music: Off','♫ موسیقی آرام: روشن':'♫ Calm music: On','برگشت به گزینه‌ها':'Back to tools','تقویم شمسی / میلادی':'Persian / Gregorian calendar','ماشین‌حساب':'Calculator','آیین‌نامه نظام مهندسی':'Building regulations','بستن':'Close','نتیجه':'Result','عبارت نامعتبر است':'Invalid expression','تاریخ شمسی معتبر وارد کنید':'Enter a valid Persian date','تاریخ را در یکی از تقویم‌ها وارد کنید تا معادل آن نمایش داده شود.':'Enter a date in either calendar to convert it.','میلادی:':'Gregorian:','شمسی:':'Persian:','جست‌وجوی مبحث...':'Search regulations...','فهرست مباحث مقررات ملی ساختمان':'National Building Regulations','برای مشاهده جزئیات، آخرین نسخه و اصلاحیه‌های رسمی را بررسی کنید.':'Check the latest official edition and amendments for details.','مشاهده مرجع رسمی مقررات ملی ساختمان':'Open official National Building Regulations portal'
+},
+de:{
+'خانه':'Startseite','دیوارچینی':'Mauerwerk','بتن‌ریزی':'Betonieren','میلگرد':'Bewehrungsstahl','خاموت':'Bügel','کاشی و سرامیک':'Fliesen & Keramik','موزاییک کف':'Bodenfliesen','سرامیک کف':'Bodenkeramik','فوم بتن':'Schaumbeton','خیز مثبت و منفی دال':'Deckendurchbiegung','خاک‌برداری':'Aushub','سیمانکاری':'Zementputz','رنگ‌آمیزی':'Anstrich','قوطی و پروفیل':'Hohlprofile','برآورد سیم‌کشی':'Elektroinstallation – Schätzung','بار و جریان برق':'Elektrische Last & Strom','مرجع مصالح':'Materialreferenz','راهنما':'Anleitung','درباره':'Über die App','محاسبه':'Berechnen','کپی نتیجه':'Ergebnis kopieren','یکی از ابزارها را انتخاب کنید':'Werkzeug auswählen','طول':'Länge','عرض':'Breite','ضخامت':'Dicke','طول دیوار':'Wandlänge','ارتفاع دیوار':'Wandhöhe','مساحت بازشوها':'Öffnungsfläche','تعداد در هر متر مربع':'Stück pro Quadratmeter','درصد ضایعات':'Verschnitt (%)','سیمان در هر متر مکعب':'Zement je Kubikmeter','کیسه سیمان (۵۰ کیلویی)':'Zementsäcke (50 kg)','تعداد شاخه':'Anzahl Stäbe','طول هر شاخه':'Stablänge','قطر میلگرد':'Bewehrungsdurchmesser','مساحت سطح':'Fläche','طول کاشی':'Fliesenlänge','عرض کاشی':'Fliesenbreite','مساحت کف':'Bodenfläche','تعداد دست':'Anzahl Anstriche','پوشش هر لیتر در هر دست':'Reichweite je Liter und Anstrich','بعد اول':'Erstes Maß','بعد دوم':'Zweites Maß','ضخامت جداره':'Wandstärke','ضریب تورم خاک':'Auflockerungsfaktor','ظرفیت کامیون':'LKW-Kapazität','تعداد نقاط روشنایی':'Lichtpunkte','تعداد پریزها':'Steckdosen','توان کل تجهیزات متصل':'Gesamtanschlussleistung','ولتاژ نامی':'Nennspannung','ضریب توان (cos φ)':'Leistungsfaktor (cos φ)','ضریب هم‌زمانی':'Gleichzeitigkeitsfaktor','متر':'m','متر مربع':'m²','متر مکعب':'m³','سانتی‌متر':'cm','میلی‌متر':'mm','کیلوگرم':'kg','عدد':'Stück','کیسه':'Säcke','لیتر':'L','آمپر':'A','وات':'W','ولت':'V','کپی لینک مایکت':'Myket-Link kopieren','♫ موسیقی آرام: خاموش':'♫ Ruhige Musik: Aus','♫ موسیقی آرام: روشن':'♫ Ruhige Musik: Ein','برگشت به گزینه‌ها':'Zurück zur Werkzeugauswahl','تقویم شمسی / میلادی':'Persischer / Gregorianischer Kalender','ماشین‌حساب':'Taschenrechner','آیین‌نامه نظام مهندسی':'Bauvorschriften','بستن':'Schließen','نتیجه':'Ergebnis','عبارت نامعتبر است':'Ungültiger Ausdruck','تاریخ شمسی معتبر وارد کنید':'Gültiges persisches Datum eingeben','جست‌وجوی مبحث...':'Vorschrift suchen...','فهرست مباحث مقررات ملی ساختمان':'Nationale Bauvorschriften','مشاهده مرجع رسمی مقررات ملی ساختمان':'Offizielle Bauvorschriften öffnen'
+},
+ar:{
+'خانه':'الرئيسية','دیوارچینی':'بناء الجدران','بتن‌ریزی':'صب الخرسانة','میلگرد':'حديد التسليح','خاموت':'الكانات','کاشی و سرامیک':'البلاط والسيراميك','موزاییک کف':'بلاط الأرضيات','سرامیک کف':'سيراميك الأرضيات','فوم بتن':'الخرسانة الرغوية','خیز مثبت و منفی دال':'تقوس وهبوط البلاطة','خاک‌برداری':'الحفر','سیمانکاری':'اللياسة الإسمنتية','رنگ‌آمیزی':'الدهان','قوطی و پروفیل':'المقاطع الفولاذية','برآورد سیم‌کشی':'تقدير التمديدات الكهربائية','بار و جریان برق':'الحمل والتيار الكهربائي','مرجع مصالح':'مرجع المواد','راهنما':'الدليل','درباره':'حول التطبيق','محاسبه':'احسب','کپی نتیجه':'نسخ النتيجة','یکی از ابزارها را انتخاب کنید':'اختر أداة','طول':'الطول','عرض':'العرض','ضخامت':'السماكة','طول دیوار':'طول الجدار','ارتفاع دیوار':'ارتفاع الجدار','مساحت بازشوها':'مساحة الفتحات','تعداد در هر متر مربع':'العدد لكل متر مربع','درصد ضایعات':'نسبة الهدر','سیمان در هر متر مکعب':'الإسمنت لكل متر مكعب','کیسه سیمان (۵۰ کیلویی)':'أكياس إسمنت (50 كغ)','تعداد شاخه':'عدد القضبان','طول هر شاخه':'طول القضيب','قطر میلگرد':'قطر حديد التسليح','مساحت سطح':'مساحة السطح','طول کاشی':'طول البلاطة','عرض کاشی':'عرض البلاطة','مساحت کف':'مساحة الأرضية','تعداد دست':'عدد الطبقات','پوشش هر لیتر در هر دست':'تغطية اللتر لكل طبقة','بعد اول':'البعد الأول','بعد دوم':'البعد الثاني','ضخامت جداره':'سماكة الجدار','ضریب تورم خاک':'معامل انتفاخ التربة','ظرفیت کامیون':'سعة الشاحنة','تعداد نقاط روشنایی':'نقاط الإنارة','تعداد پریزها':'المقابس','توان کل تجهیزات متصل':'إجمالي القدرة المتصلة','ولتاژ نامی':'الجهد الاسمي','ضریب توان (cos φ)':'معامل القدرة','ضریب هم‌زمانی':'معامل التزامن','متر':'م','متر مربع':'م²','متر مکعب':'م³','سانتی‌متر':'سم','میلی‌متر':'مم','کیلوگرم':'كغ','عدد':'عدد','کیسه':'أكياس','لیتر':'لتر','آمپر':'أمبير','وات':'واط','ولت':'فولت','کپی لینک مایکت':'نسخ رابط Myket','♫ موسیقی آرام: خاموش':'♫ الموسيقى الهادئة: إيقاف','♫ موسیقی آرام: روشن':'♫ الموسيقى الهادئة: تشغيل','برگشت به گزینه‌ها':'العودة إلى الأدوات','تقویم شمسی / میلادی':'التقويم الفارسي / الميلادي','ماشین‌حساب':'آلة حاسبة','آیین‌نامه نظام مهندسی':'لوائح البناء','بستن':'إغلاق','نتیجه':'النتيجة','عبارت نامعتبر است':'تعبير غير صالح','تاریخ شمسی معتبر وارد کنید':'أدخل تاريخاً فارسياً صحيحاً','جست‌وجوی مبحث...':'ابحث في اللوائح...','فهرست مباحث مقررات ملی ساختمان':'لوائح البناء الوطنية','مشاهده مرجع رسمی مقررات ملی ساختمان':'فتح بوابة اللوائح الرسمية'
+}};
+const originalText=new WeakMap();
+function translate(root=document.body){
+ const lang=localStorage.getItem('metreyar.lang')||'fa',d=dict[lang]||{};
+ document.documentElement.lang=lang;document.documentElement.dir=(lang==='fa'||lang==='ar')?'rtl':'ltr';
+ document.body.style.direction=document.documentElement.dir;
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+ while(walker.nextNode()){
+  const n=walker.currentNode;if(!originalText.has(n))originalText.set(n,n.nodeValue);
+  const original=originalText.get(n),key=original.trim();
+  if(d[key])n.nodeValue=original.replace(key,d[key]);
+ }
+ if(root.querySelectorAll)root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>{
+  ['placeholder','title','aria-label'].forEach(a=>{const v=el.getAttribute(a);if(v&&d[v])el.setAttribute(a,d[v])});
+ });
 }
-let stack=[],curIndex=0;const originalSel=window.sel;
-window.sel=function(i){if(i!==curIndex)stack.push(curIndex);curIndex=i;originalSel(i);back.style.display=i===0?'none':'inline-block';history.pushState({metreyar:true,index:i},'','#section-'+i);translate(document.querySelector('#form'))};
-back.onclick=()=>{if(stack.length)history.back();else{originalSel(0);curIndex=0;back.style.display='none'}};
-window.addEventListener('popstate',()=>{if(stack.length){curIndex=stack.pop();originalSel(curIndex);back.style.display=curIndex===0?'none':'inline-block'}else if(curIndex!==0){curIndex=0;originalSel(0);back.style.display='none'}});
-const mo=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)translate(n)})));mo.observe(document.body,{childList:true,subtree:true});translate();
+function chooseLang(l){localStorage.setItem('metreyar.lang',l);location.reload()}
+const style=document.createElement('style');
+style.textContent='#mt-extra{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;padding:8px}#mt-extra button,#mt-extra select,.mt-dialog button{font:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx)}#mt-back{display:none;background:var(--pri)!important;color:var(--prc)!important}.mt-overlay{display:none;position:fixed;z-index:9999;inset:0;background:#071323aa;align-items:center;justify-content:center;padding:12px}.mt-overlay.open{display:flex}.mt-dialog{width:min(620px,100%);max-height:88vh;overflow:auto;background:var(--card);color:var(--tx);border-radius:18px;padding:16px}.mt-dialog header{display:flex;justify-content:space-between;align-items:center;padding:0 0 12px}.mt-dialog h2{font-size:19px}.mt-dialog input{font:inherit;padding:10px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);max-width:100%}.mt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}.mt-grid button{padding:13px}.mt-result{padding:12px;background:var(--res);border-radius:10px;margin-top:10px;overflow-wrap:anywhere}.mt-dialog details{border-top:1px solid var(--bd);padding:9px 0}.mt-reg-meta{font-size:12px;color:var(--mut)}.mt-reg-link{display:inline-block;margin:8px 0;color:var(--pri);font-weight:700}';
+document.head.appendChild(style);
+const bar=document.createElement('div');bar.id='mt-extra';
+const language=document.createElement('select');language.setAttribute('aria-label','Language');
+language.innerHTML='<option value="fa">فارسی</option><option value="en">English</option><option value="de">Deutsch</option><option value="ar">العربية</option>';
+language.value=localStorage.getItem('metreyar.lang')||'fa';language.onchange=()=>chooseLang(language.value);
+const back=document.createElement('button');back.id='mt-back';back.textContent='↩ برگشت به گزینه‌ها';
+const calendarBtn=document.createElement('button');calendarBtn.textContent='📅 تقویم شمسی / میلادی';calendarBtn.onclick=()=>openPanel('calendar');
+const calcBtn=document.createElement('button');calcBtn.textContent='🧮 ماشین‌حساب';calcBtn.onclick=()=>openPanel('calc');
+const regsBtn=document.createElement('button');regsBtn.textContent='📚 آیین‌نامه نظام مهندسی';regsBtn.onclick=()=>openPanel('regs');
+bar.append(language,back,calendarBtn,calcBtn,regsBtn);
+const header=document.querySelector('header');if(header)header.insertAdjacentElement('afterend',bar);
+const overlay=document.createElement('div');overlay.className='mt-overlay';
+overlay.innerHTML='<section class="mt-dialog" role="dialog" aria-modal="true"><header><h2 id="mt-title"></h2><button id="mt-close" type="button">بستن ✕</button></header><div id="mt-body"></div></section>';
+document.body.appendChild(overlay);
+function closePanel(){overlay.classList.remove('open');document.body.style.overflow=''}
+document.getElementById('mt-close').onclick=closePanel;
+overlay.addEventListener('click',e=>{if(e.target===overlay)closePanel()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open'))closePanel()});
+const localizeDigits=s=>String(s).replace(/[۰-۹٠-٩]/g,c=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c)>=0?'۰۱۲۳۴۵۶۷۸۹'.indexOf(c):'٠١٢٣٤٥٦٧٨٩'.indexOf(c)));
+function calculateExpression(source){
+ let s=localizeDigits(source).replace(/٫/g,'.').replace(/,/g,'').replace(/π/g,'pi').replace(/×/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-').replace(/\s+/g,'');
+ let tokens=[],i=0;
+ while(i<s.length){
+  const rest=s.slice(i),num=rest.match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i);
+  const id=rest.match(/^[a-z]+/i);
+  if(num){tokens.push({t:'n',v:Number(num[0])});i+=num[0].length}
+  else if(id){tokens.push({t:'id',v:id[0].toLowerCase()});i+=id[0].length}
+  else if('+-*/^()%'.includes(s[i])){tokens.push({t:s[i]});i++}
+  else throw Error('token');
+ }
+ let p=0;
+ function primary(){
+  const t=tokens[p++];
+  if(!t)throw Error('expression');
+  if(t.t==='n')return t.v;
+  if(t.t==='+'||t.t==='-'){const v=primary();return t.t==='-'?-v:v}
+  if(t.t==='('){const v=expr();if(!tokens[p]||tokens[p++].t!==')')throw Error('paren');return v}
+  if(t.t==='id'){
+   if(t.v==='pi')return Math.PI;
+   if(t.v==='e')return Math.E;
+   if(t.v==='sqrt'){if(!tokens[p]||tokens[p++].t!=='(')throw Error('sqrt');const v=expr();if(!tokens[p]||tokens[p++].t!==')'||v<0)throw Error('sqrt');return Math.sqrt(v)}
+  }
+  throw Error('value');
+ }
+ function power(){let v=primary();if(tokens[p]&&tokens[p].t==='^'){p++;v=Math.pow(v,power())}if(tokens[p]&&tokens[p].t==='%'){p++;v/=100}return v}
+ function term(){let v=power();while(tokens[p]&&(tokens[p].t==='*'||tokens[p].t==='/')){const op=tokens[p++].t,b=power();v=op==='*'?v*b:v/b}return v}
+ function expr(){let v=term();while(tokens[p]&&(tokens[p].t==='+'||tokens[p].t==='-')){const op=tokens[p++].t,b=term();v=op==='+'?v+b:v-b}return v}
+ const result=expr();if(p!==tokens.length||!Number.isFinite(result))throw Error('invalid');return result;
+}
+function showCalc(){
+ const title=$('#mt-title'),body=$('#mt-body');title.textContent='ماشین‌حساب مهندسی';
+ body.innerHTML='<input id="mt-expr" inputmode="decimal" autocomplete="off" placeholder="مثلاً (12.5*4)+8" style="width:100%;direction:ltr;text-align:left"><div class="mt-grid">'+['7','8','9','÷','4','5','6','×','1','2','3','−','0','.','%','+','(',')','^','√','C','⌫','='].map(x=>'<button type="button" data-k="'+x+'">'+x+'</button>').join('')+'</div><div class="mt-result" id="mt-answer">نتیجه</div><small>توابع: √(عدد)، pi، e، توان ^ و درصد %</small>';
+ const input=$('#mt-expr'),answer=$('#mt-answer');
+ function run(){try{answer.textContent='= '+new Intl.NumberFormat(undefined,{maximumFractionDigits:8}).format(calculateExpression(input.value))}catch(e){answer.textContent='عبارت نامعتبر است'}}
+ body.querySelectorAll('[data-k]').forEach(btn=>btn.onclick=()=>{const k=btn.dataset.k;if(k==='C'){input.value='';answer.textContent='نتیجه';return}if(k==='⌫'){input.value=input.value.slice(0,-1);return}if(k==='='){run();return}input.value+=k==='√'?'sqrt(':k});
+ input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();run()}});
+}
+function jalaliToGregorian(jy,jm,jd){
+ jy=Number(jy);jm=Number(jm);jd=Number(jd);
+ if(!Number.isInteger(jy)||!Number.isInteger(jm)||!Number.isInteger(jd)||jy<1200||jy>1600||jm<1||jm>12||jd<1||jd>(jm<=6?31:jm<=11?30:30))throw Error('date');
+ let y=jy+1595,z=-355668+365*y+Math.floor(y/33)*8+Math.floor((y%33+3)/4)+jd+(jm<7?(jm-1)*31:(jm-7)*30+186);
+ let gy=400*Math.floor(z/146097);z%=146097;
+ if(z>36524){gy+=100*Math.floor(--z/36524);z%=36524;if(z>=365)z++}
+ gy+=4*Math.floor(z/1461);z%=1461;
+ if(z>365){gy+=Math.floor((z-1)/365);z=(z-1)%365}
+ let gd=z+1,leap=(gy%4===0&&gy%100!==0)||gy%400===0,days=[0,31,leap?29:28,31,30,31,30,31,31,30,31,30,31],gm=1;
+ while(gm<=12&&gd>days[gm]){gd-=days[gm];gm++}
+ if(gm>12)throw Error('date');return [gy,gm,gd];
+}
+function gregorianToJalali(gy,gm,gd){
+ const gdm=[0,31,59,90,120,151,181,212,243,273,304,334];let jy=gy<=1600?0:979;gy-=gy<=1600?621:1600;
+ const gy2=gm>2?gy+1:gy;let days=365*gy+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)-80+gd+gdm[gm-1];
+ jy+=33*Math.floor(days/12053);days%=12053;jy+=4*Math.floor(days/1461);days%=1461;
+ if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365}
+ const jm=days<186?1+Math.floor(days/31):7+Math.floor((days-186)/30),jd=1+(days<186?days%31:(days-186)%30);
+ return [jy,jm,jd];
+}
+function showCalendar(){
+ $('#mt-title').textContent='تقویم شمسی و میلادی';
+ const body=$('#mt-body');body.innerHTML='<p>تاریخ را در یکی از تقویم‌ها وارد کنید تا معادل آن نمایش داده شود.</p><label for="mt-gdate">میلادی</label><input id="mt-gdate" type="date"><label for="mt-jdate">شمسی</label><input id="mt-jdate" inputmode="numeric" placeholder="۱۴۰۵/۰۸/۲۸" dir="ltr" style="width:100%;text-align:left"><div class="mt-result" id="mt-dateout" aria-live="polite"></div>';
+ const g=$('#mt-gdate'),j=$('#mt-jdate'),out=$('#mt-dateout');
+ const now=new Date();g.value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+ function fromGregorian(){if(!g.value)return;const a=g.value.split('-').map(Number),v=gregorianToJalali(a[0],a[1],a[2]);j.value=v.join('/');out.textContent='میلادی: '+g.value+' | شمسی: '+v.join('/')}
+ g.onchange=fromGregorian;
+ j.onchange=()=>{try{const a=localizeDigits(j.value).replace(/-/g,'/').split('/').map(Number);if(a.length!==3)throw Error();const v=jalaliToGregorian(...a);g.value=v[0]+'-'+String(v[1]).padStart(2,'0')+'-'+String(v[2]).padStart(2,'0');out.textContent='شمسی: '+a.join('/')+' | میلادی: '+g.value}catch(e){out.textContent='تاریخ شمسی معتبر وارد کنید'}};
+ fromGregorian();
+}
+const regulations=[
+['۱','تعاریف','۱۳۹۲','اصطلاحات و تعاریف پایه مورد استفاده در مقررات ملی ساختمان.'],
+['۲','نظامات اداری','۱۳۸۴','مسئولیت‌ها، صلاحیت‌ها، فرآیندهای اداری و کنترل ساختمان.'],
+['۳','حفاظت ساختمان‌ها در مقابل حریق','۱۳۹۵','الزامات ایمنی حریق، راه‌های خروج و حفاظت اجزای ساختمان.'],
+['۴','الزامات عمومی ساختمان‌ها','۱۴۰۳','الزامات عمومی معماری، ابعاد، فضاها و دسترسی‌ها.'],
+['۵','مصالح و فرآورده‌های ساختمانی','۱۳۹۶','ویژگی‌ها و معیارهای پذیرش مصالح و فرآورده‌ها.'],
+['۶','بارهای وارد بر ساختمان','۱۳۹۸','بارهای مرده، زنده، برف، باد و ترکیب بارها.'],
+['۷','ژئوتکنیک و مهندسی پی','۱۴۰۰','شناسایی زمین، مطالعات ژئوتکنیک و طراحی پی.'],
+['۸','طرح و اجرای ساختمان‌های با مصالح بنایی','۱۳۹۸','ضوابط طراحی و اجرای سازه‌های بنایی.'],
+['۹','طرح و اجرای ساختمان‌های بتن‌آرمه','۱۳۹۹','ضوابط طراحی و اجرای اعضای بتن‌آرمه.'],
+['۱۰','طرح و اجرای ساختمان‌های فولادی','۱۴۰۱','ضوابط طراحی، اتصالات و اجرای سازه‌های فولادی.'],
+['۱۱','طرح و اجرای صنعتی ساختمان‌ها','۱۴۰۰','الزامات صنعتی‌سازی و روش‌های نوین ساخت.'],
+['۱۲','ایمنی و حفاظت کار در حین اجرا','۱۴۰۳','ایمنی کارگاه، حفاظت کارکنان و عملیات اجرایی.'],
+['۱۳','طرح و اجرای تأسیسات برقی ساختمان‌ها','۱۳۹۵','طراحی و اجرای تأسیسات الکتریکی ساختمان.'],
+['۱۴','تأسیسات مکانیکی','۱۳۹۶','طراحی و اجرای سامانه‌های مکانیکی ساختمان.'],
+['۱۵','آسانسورها و پلکان برقی','۱۳۹۲','الزامات نصب، ایمنی و بهره‌برداری آسانسور و پله‌برقی.'],
+['۱۶','تأسیسات بهداشتی','۱۳۹۶','آب‌رسانی، فاضلاب و تجهیزات بهداشتی.'],
+['۱۷','سامانه گاز طبیعی در ساختمان','۱۴۰۳','طراحی و اجرای لوله‌کشی و سامانه گاز طبیعی.'],
+['۱۸','عایق‌بندی و تنظیم صدا','۱۳۹۶','کنترل انتقال صدا و الزامات آکوستیکی.'],
+['۱۹','صرفه‌جویی در مصرف انرژی','۱۴۰۴','الزامات پوسته، تأسیسات و مدیریت مصرف انرژی.'],
+['۲۰','علائم و تابلوها','۱۳۹۶','علائم ایمنی، تابلوها و نشانه‌گذاری ساختمان.'],
+['۲۱','پدافند غیرعامل','۱۳۹۵','الزامات کاهش آسیب‌پذیری و تداوم عملکرد ساختمان.'],
+['۲۲','مراقبت و نگهداری ساختمان‌ها','۱۳۹۲','بازرسی، نگهداری و ایمنی در دوره بهره‌برداری.'],
+['۲۳','الزامات ترافیکی ساختمان‌ها','۱۴۰۱','الزامات پارکینگ، دسترسی و ترافیک ساختمان.'],
+['۲۴','انطباق شهری ساختمان','۱۴۰۴','طبقه، تراکم، ارتفاع، سطح اشغال، استقرار و انطباق با سیمای شهری.']
+];
+function showRegs(){
+ $('#mt-title').textContent='فهرست مباحث مقررات ملی ساختمان';
+ const body=$('#mt-body');
+ body.innerHTML='<p>فهرست ۲۴ مبحث به همراه موضوع و سال ویرایش درج‌شده برای راهنمایی اولیه. سال ویرایش یا اصلاحیه لازم‌الاجرا ممکن است تغییر کند؛ پیش از طراحی، اجرا یا استناد حقوقی، آخرین ابلاغیه رسمی را بررسی کنید.</p><input id="mt-regq" placeholder="جست‌وجوی مبحث..." style="width:100%"><div id="mt-reglist"></div><div class="mt-result">این بخش متن کامل آیین‌نامه یا جایگزین نسخه رسمی و اصلاحیه‌های ابلاغی نیست. فایل‌های دارای حق نشر نیز بدون مجوز در برنامه بازنشر نمی‌شوند.</div><a class="mt-reg-link" href="https://inbr.ir/" target="_blank" rel="noopener">مشاهده مرجع رسمی مقررات ملی ساختمان ↗</a>';
+ const list=$('#mt-reglist');
+ function render(q=''){list.innerHTML='';regulations.filter(r=>r.join(' ').includes(q.trim())).forEach(r=>{const d=document.createElement('details'),s=document.createElement('summary'),p=document.createElement('p'),m=document.createElement('div');s.textContent='مبحث '+r[0]+' – '+r[1];m.className='mt-reg-meta';m.textContent='ویرایش درج‌شده: '+r[2];p.textContent=r[3];d.append(s,m,p);list.appendChild(d)})}
+ render();$('#mt-regq').addEventListener('input',e=>render(e.target.value));
+}
+function openPanel(which){overlay.classList.add('open');document.body.style.overflow='hidden';if(which==='calc')showCalc();if(which==='calendar')showCalendar();if(which==='regs')showRegs();translate($('#mt-body'))}
+let stack=[],currentIndex=0;const originalSel=window.sel;
+if(typeof originalSel==='function'){
+ window.sel=function(i){if(i!==currentIndex)stack.push(currentIndex);currentIndex=i;originalSel(i);back.style.display=i===0?'none':'inline-block';history.pushState({metreyar:true,index:i},'','#section-'+i);translate(document.querySelector('#form'))};
+ back.onclick=()=>{if(stack.length)history.back();else{originalSel(0);currentIndex=0;back.style.display='none'}};
+ window.addEventListener('popstate',()=>{if(stack.length){currentIndex=stack.pop();originalSel(currentIndex);back.style.display=currentIndex===0?'none':'inline-block'}else if(currentIndex!==0){currentIndex=0;originalSel(0);back.style.display='none'}});
+}
+const observer=new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)translate(n);else if(n.nodeType===3)translate(n.parentElement||document.body)})));
+observer.observe(document.body,{childList:true,subtree:true});
+translate();
 })();
