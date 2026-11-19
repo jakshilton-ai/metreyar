@@ -58,13 +58,20 @@ _finance_cache = {"at": 0.0, "data": None}
 @app.get("/market/financial")
 async def financial_market():
     now = time.time()
-    if _finance_cache["data"] is not None and now - _finance_cache["at"] < 3600:
+    api_key = os.getenv("TALASANJ_API_KEY", "").strip()
+    # With a free API key, refresh close to the provider's ~20-second update cycle.
+    # Without a key, retain a long cache to stay within the provider's testing quota.
+    cache_ttl = 20 if api_key else 3600
+    if _finance_cache["data"] is not None and now - _finance_cache["at"] < cache_ttl:
         return _finance_cache["data"]
     import httpx
     result = {"ok": True, "provider": "Talasanj", "prices": {}, "updated_at": None}
+    headers = {"X-Client-Name": "Metreyar"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
     async with httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=8.0)) as client:
         try:
-            response = await client.get("https://talasanj.info/api/v1/prices?unit=toman")
+            response = await client.get("https://talasanj.info/api/v1/prices?unit=toman", headers=headers)
             response.raise_for_status()
             payload = response.json()
             result["prices"] = payload.get("prices", {})
