@@ -51,6 +51,103 @@ def aps_status():
         "dwg_conversion": "ready_for_activity_setup" if configured else "credentials_and_activity_required"
     }
 
+
+async def cloudconvert_start(file: UploadFile, name: str, ext: str):
+    api_key = os.getenv("CLOUDCONVERT_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            503,
+            "تبدیل ابری فعال نیست؛ مدیر سامانه باید CLOUDCONVERT_API_KEY را در تنظیمات محرمانه Render ثبت کند."
+        )
+    import httpx
+    raw = await file.read(MAX_BYTES + 1)
+    if not raw:
+        raise HTTPException(400, "فایل خالی است.")
+    if len(raw) > MAX_BYTES:
+        raise HTTPException(413, f"حجم فایل از حد مجاز {MAX_BYTES // (1024 * 1024)} مگابایت بیشتر است.")
+
+    headers = {"Authorization": f"Bearer {api_key}"}
+    tasks = {
+        "upload-source": {"operation": "import/upload"},
+        "convert-to-pdf": {
+            "operation": "convert",
+            "input": "upload-source",
+            "input_format": ext.lstrip("."),
+            "output_format": "pdf"
+        },
+        "export-pdf": {"operation": "export/url", "input": "convert-to-pdf"}
+    }
+    timeout = httpx.Timeout(45.0, connect=15.0)
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        try:
+            created = await client.post(
+                "https://api.cloudconvert.com/v2/jobs",
+                headers={**headers, "Content-Type": "application/json"},
+                json={"tag": f"metreyar-{int(time.time())}", "tasks": tasks}
+            )
+            created.raise_for_status()
+            job = created.json().get("data", {})
+            upload_task = next((t for t in job.get("tasks", []) if t.get("name") == "upload-source"), None)
+            upload_form = (upload_task or {}).get("result", {}).get("form", {})
+            if not upload_form.get("url") or not isinstance(upload_form.get("parameters"), dict):
+                raise HTTPException(502, "اطلاعات بارگذاری امن از CloudConvert دریافت نشد.")
+            upload_response = await client.post(
+                upload_form["url"],
+                data={k: str(v) for k, v in upload_form["parameters"].items()},
+                files={"file": (name, raw, file.content_type or "application/octet-stream")},
+                timeout=httpx.Timeout(90.0, connect=15.0)
+            )
+            upload_response.raise_for_status()
+            return {"ok": True, "jobId": job.get("id"), "status": "processing", "provider": "CloudConvert"}
+        except HTTPException:
+            raise
+        except httpx.HTTPStatusError as exc:
+            detail = "درخواست CloudConvert ناموفق بود."
+            try:
+                detail = exc.response.json().get("message") or detail
+            except Exception:
+                pass
+            raise HTTPException(502, detail) from exc
+        except httpx.HTTPError as exc:
+            raise HTTPException(502, "ارتباط با CloudConvert برقرار نشد؛ دوباره تلاش کنید.") from exc
+
+
+@app.get("/cloudconvert/status/{job_id}")
+async def cloudconvert_status(job_id: str):
+    api_key = os.getenv("CLOUDCONVERT_API_KEY")
+    if not api_key:
+        raise HTTPException(503, "اتصال CloudConvert روی سرور تنظیم نشده است.")
+    if not job_id or len(job_id) > 100 or not all(c.isalnum() or c == "-" for c in job_id):
+        raise HTTPException(400, "شناسه درخواست تبدیل معتبر نیست.")
+    import httpx
+    async with httpx.AsyncClient(timeout=httpx.Timeout(20.0, connect=10.0)) as client:
+        try:
+            response = await client.get(
+                f"https://api.cloudconvert.com/v2/jobs/{job_id}",
+                headers={"Authorization": f"Bearer {api_key}"},
+            )
+            response.raise_for_status()
+            job = response.json().get("data", {})
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(502, "بررسی وضعیت تبدیل در CloudConvert ناموفق بود.") from exc
+        except httpx.HTTPError as exc:
+            raise HTTPException(502, "ارتباط با CloudConvert برقرار نشد.") from exc
+
+    if not str(job.get("tag", "")).startswith("metreyar-"):
+        raise HTTPException(404, "درخواست تبدیل متعلق به متره‌یار نیست.")
+    export_task = next((t for t in job.get("tasks", []) if t.get("name") == "export-pdf"), None)
+    output = ((export_task or {}).get("result") or {}).get("files") or []
+    first = output[0] if output else {}
+    failed = next((t for t in job.get("tasks", []) if t.get("status") == "error"), None)
+    return {
+        "ok": True,
+        "jobId": job.get("id"),
+        "status": job.get("status", "processing"),
+        "downloadUrl": first.get("url"),
+        "filename": first.get("filename"),
+        "error": (failed or {}).get("message") if job.get("status") == "error" else None,
+    }
+
 @app.post("/convert")
 async def convert(request: Request, file: UploadFile = File(...)):
     ip = request.client.host if request.client else "unknown"
@@ -69,10 +166,12 @@ async def convert(request: Request, file: UploadFile = File(...)):
             415,
             "این نسخه فقط PDF و DXF را پردازش می‌کند. برای SAFE و STAAD.Pro ابتدا از نرم‌افزار اصلی گزارش PDF بگیرید."
         )
+    if ext in {".dwg", ".dxf"} and os.getenv("CLOUDCONVERT_API_KEY"):
+        return await cloudconvert_start(file, name, ext)
     if ext == ".dwg":
         raise HTTPException(
             503,
-            "موتور Autodesk APS هنوز پیکربندی نشده است. مدیر سامانه باید APS_CLIENT_ID، APS_CLIENT_SECRET و APS_ACTIVITY_ID را در تنظیمات محرمانه سرور ثبت و Activity اتوکد را فعال کند."
+            "تبدیل DWG فعال نیست؛ مدیر سامانه باید CLOUDCONVERT_API_KEY را در تنظیمات محرمانه سرور ثبت کند."
         )
 
     tmp_in = None
