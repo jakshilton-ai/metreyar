@@ -68,6 +68,7 @@ async def convert(request: Request, file: UploadFile = File(...)):
 
     tmp_in = None
     tmp_out = None
+    handed_off = False
     try:
         suffix = ext
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as source:
@@ -112,7 +113,10 @@ async def convert(request: Request, file: UploadFile = File(...)):
         )
         if tmp_in:
             cleanup(tmp_in)
+        if tmp_out and not handed_off:
+            cleanup(tmp_out)
             tmp_in = None
+        handed_off = True
         return response
     except HTTPException:
         raise
