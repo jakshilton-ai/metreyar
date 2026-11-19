@@ -173,7 +173,7 @@ function refreshMetreyarDate(){
  const now=new Date();
  const fa=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{dateStyle:'full'}).format(now);
  const en=new Intl.DateTimeFormat('en-CA',{dateStyle:'medium'}).format(now);
- dateCredit.textContent='امروز: '+fa+' | '+en+' · مالک و تولیدکننده محتوا: مهدی باقربخش';
+ dateCredit.textContent='امروز: '+fa+' | '+en;
 }
 refreshMetreyarDate();
 setInterval(refreshMetreyarDate,60000);
