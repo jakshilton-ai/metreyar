@@ -16,3 +16,5 @@ services:
         value: "5"
       - key: ALLOWED_ORIGINS
         value: "https://jakshilton-ai.github.io"
+      - key: CLOUDCONVERT_API_KEY
+        sync: false
