@@ -151,9 +151,9 @@ function showRegs(){
  render();$('#mt-regq').addEventListener('input',e=>render(e.target.value));
 }
 function openPanel(which){overlay.classList.add('open');document.body.style.overflow='hidden';if(which==='calc')showCalc();if(which==='calendar')showCalendar();if(which==='regs')showRegs();translate(overlay)}
-let stack=[],currentIndex=0;const originalSel=window.sel;
+let stack=[],currentIndex=0,lastNavigatedIndex=0;const originalSel=window.sel;
 if(typeof originalSel==='function'){
- window.sel=function(i){if(i!==currentIndex)stack.push(currentIndex);currentIndex=i;originalSel(i);back.style.display=i===0?'none':'inline-block';history.pushState({metreyar:true,index:i},'','#section-'+i);translate(document.querySelector('#form'))};
+ window.sel=function(i){if(i!==currentIndex)stack.push(currentIndex);currentIndex=i;lastNavigatedIndex=i;originalSel(i);back.style.display=i===0?'none':'inline-block';history.pushState({metreyar:true,index:i},'','#section-'+i);translate(document.querySelector('#form'))};
  back.onclick=()=>{if(stack.length)history.back();else{originalSel(0);currentIndex=0;back.style.display='none'}};
  window.addEventListener('popstate',()=>{if(stack.length){currentIndex=stack.pop();originalSel(currentIndex);back.style.display=currentIndex===0?'none':'inline-block'}else if(currentIndex!==0){currentIndex=0;originalSel(0);back.style.display='none'}});
  // Android system Back: from any calculator/tool section, always return to the main menu.
@@ -170,25 +170,25 @@ if(typeof originalSel==='function'){
 }
 // Unified Android/browser Back handling for every tool, modal and section.
 (function installGlobalBackNavigation(){
- const homeIndex=0;
  const pushGuard=()=>history.pushState({metreyarBackGuard:true},'',location.href);
- // Keep one in-app history entry so the first Back from a tool is handled here.
  pushGuard();
  window.addEventListener('popstate',()=>{
   const openLayers=[...document.querySelectorAll('.mt-overlay.open, #mt-finance.open, #mt-cloud-converter.open')];
+  const wasInTool=lastNavigatedIndex!==0;
   if(openLayers.length){
    openLayers.forEach(layer=>layer.classList.remove('open'));
    document.body.style.overflow='';
   }
-  if(typeof originalSel==='function' && currentIndex!==homeIndex){
+  if(wasInTool && typeof originalSel==='function'){
    stack.length=0;
-   currentIndex=homeIndex;
-   originalSel(homeIndex);
+   currentIndex=0;
+   lastNavigatedIndex=0;
+   originalSel(0);
    back.style.display='none';
    translate(document.querySelector('#form'));
   }
-  // At the home screen, allow the next Back press to leave the app.
-  if(openLayers.length || currentIndex!==homeIndex) pushGuard();
+  // Back from any tool returns home; a further Back from home exits normally.
+  if(openLayers.length || wasInTool) pushGuard();
  });
 })();
 const observer=new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)translate(n);else if(n.nodeType===3)translate(n.parentElement||document.body)})));
