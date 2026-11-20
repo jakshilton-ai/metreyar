@@ -168,6 +168,29 @@ if(typeof originalSel==='function'){
   }
  });
 }
+// Unified Android/browser Back handling for every tool, modal and section.
+(function installGlobalBackNavigation(){
+ const homeIndex=0;
+ const pushGuard=()=>history.pushState({metreyarBackGuard:true},'',location.href);
+ // Keep one in-app history entry so the first Back from a tool is handled here.
+ pushGuard();
+ window.addEventListener('popstate',()=>{
+  const openLayers=[...document.querySelectorAll('.mt-overlay.open, #mt-finance.open, #mt-cloud-converter.open')];
+  if(openLayers.length){
+   openLayers.forEach(layer=>layer.classList.remove('open'));
+   document.body.style.overflow='';
+  }
+  if(typeof originalSel==='function' && currentIndex!==homeIndex){
+   stack.length=0;
+   currentIndex=homeIndex;
+   originalSel(homeIndex);
+   back.style.display='none';
+   translate(document.querySelector('#form'));
+  }
+  // At the home screen, allow the next Back press to leave the app.
+  if(openLayers.length || currentIndex!==homeIndex) pushGuard();
+ });
+})();
 const observer=new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)translate(n);else if(n.nodeType===3)translate(n.parentElement||document.body)})));
 observer.observe(document.body,{childList:true,subtree:true});
 translate();
