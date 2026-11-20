@@ -156,6 +156,17 @@ if(typeof originalSel==='function'){
  window.sel=function(i){if(i!==currentIndex)stack.push(currentIndex);currentIndex=i;originalSel(i);back.style.display=i===0?'none':'inline-block';history.pushState({metreyar:true,index:i},'','#section-'+i);translate(document.querySelector('#form'))};
  back.onclick=()=>{if(stack.length)history.back();else{originalSel(0);currentIndex=0;back.style.display='none'}};
  window.addEventListener('popstate',()=>{if(stack.length){currentIndex=stack.pop();originalSel(currentIndex);back.style.display=currentIndex===0?'none':'inline-block'}else if(currentIndex!==0){currentIndex=0;originalSel(0);back.style.display='none'}});
+ // Android system Back: from any calculator/tool section, always return to the main menu.
+ // The existing history handler runs first; this normalizes deeper navigation to Home.
+ window.addEventListener('popstate',()=>{
+  if(currentIndex!==0){
+   stack.length=0;
+   currentIndex=0;
+   originalSel(0);
+   back.style.display='none';
+   translate(document.querySelector('#form'));
+  }
+ });
 }
 const observer=new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)translate(n);else if(n.nodeType===3)translate(n.parentElement||document.body)})));
 observer.observe(document.body,{childList:true,subtree:true});
