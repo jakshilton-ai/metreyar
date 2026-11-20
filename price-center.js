@@ -123,7 +123,7 @@ function initFinancialMarket(){
    if(prices.usd)out.push(card('دلار آزاد تهران',fmt(prices.usd.price),'تومان',prices.usd.change_pct,prices.usd.updated_at||''));
    if(data.tedpix&&data.tedpix.value)out.push(card('شاخص کل بورس تهران',fmt(data.tedpix.value),'واحد',data.tedpix.change_pct,data.tedpix.updated_at||''));
    host.innerHTML=out.join('')||'<p>داده‌ای از سرویس دریافت نشد.</p>';
-   status.textContent='آخرین دریافت: '+(data.updated_at?new Date(data.updated_at).toLocaleString('fa-IR'):'زمان نامشخص')+' · منبع طلا و ارز: طلاسنج';
+   status.textContent='آخرین دریافت: '+(data.updated_at?new Date(data.updated_at).toLocaleString('fa-IR'):'زمان نامشخص')+' · منبع: '+(data.provider||'منبع عمومی بازار')+'';
   }catch(err){
    try{
     const data=await mtPublicMarketFallback(),p=data.prices||{},out=[];
@@ -162,7 +162,7 @@ function initMetreyarTicker(){
  `;
  document.head.appendChild(css);
  const bar=document.createElement('div');bar.id='mt-market-ticker';bar.setAttribute('aria-label','نوار متحرک قیمت بازار');
- bar.innerHTML='<span class="mtt-label">بازار امروز</span><div class="mtt-window"><div class="mtt-track" id="mtt-track"><span class="mtt-item">در حال دریافت قیمت آنلاین…</span></div></div><span class="mtt-state" id="mtt-state">اتصال</span><a class="mtt-credit" href="https://talasanj.info" target="_blank" rel="noopener">قیمت‌ها از طلاسنج</a>';
+ bar.innerHTML='<span class="mtt-label">بازار امروز</span><div class="mtt-window"><div class="mtt-track" id="mtt-track"><span class="mtt-item">در حال دریافت قیمت آنلاین…</span></div></div><span class="mtt-state" id="mtt-state">اتصال</span><a class="mtt-credit" href="https://talasanj.info" target="_blank" rel="noopener">منابع قیمت بازار</a>';
  document.body.insertBefore(bar,document.body.firstChild);
  const track=bar.querySelector('#mtt-track'),state=bar.querySelector('#mtt-state');
  const fmt=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2}).format(n):'—'};
