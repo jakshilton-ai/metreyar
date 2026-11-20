@@ -180,7 +180,7 @@ if(typeof originalSel==='function'){
 document.addEventListener('click',event=>{
   const target=event.target instanceof Element?event.target:null;
   if(!target)return;
-  const navTarget=target.closest('.tile, #tabs button, #mt-extra button, #mt-finance-btn');
+  const navTarget=target.closest('#mt-extra button, #mt-finance-btn');
   if(!navTarget)return;
   if(navTarget.id==='mt-back')return;
   pushBackGuard(navTarget.id||navTarget.textContent.trim().slice(0,40)||'navigation');
