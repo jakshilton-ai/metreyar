@@ -254,7 +254,7 @@ function calmNext(){
 }
 async function toggleCalmMusic(){const b=document.getElementById('musicToggle');if(calmOn){calmOn=false;clearTimeout(calmTimer);if(calmAudio){await calmAudio.close();calmAudio=null}b.textContent='♫ موسیقی آرام: خاموش';b.setAttribute('aria-pressed','false');return}try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('no audio');calmAudio=new AC();await calmAudio.resume();calmOn=true;calmStep=0;calmNext();b.textContent='♫ موسیقی آرام: روشن';b.setAttribute('aria-pressed','true')}catch(e){calmOn=false;b.textContent='موسیقی در این مرورگر پشتیبانی نمی‌شود';b.setAttribute('aria-pressed','false')}}
 
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{}));
 tabs();form();
 </script>
 <script src="price-center.js"></script>
