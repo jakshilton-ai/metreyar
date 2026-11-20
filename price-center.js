@@ -77,12 +77,12 @@ function initFinancialMarket(){
  document.head.appendChild(style);
  const btn=document.createElement('button');btn.id='mt-finance-btn';btn.textContent='📈 طلا، دلار و بورس';document.body.appendChild(btn);
  const modal=document.createElement('div');modal.id='mt-finance';modal.innerHTML=`<section class="mf-panel" role="dialog" aria-modal="true" aria-labelledby="mf-title">
- <header class="mf-head"><button class="mf-close" id="mf-close" aria-label="بستن">×</button><h2 id="mf-title">رادار بازارهای مالی</h2><p>قیمت طلا، دلار و شاخص بورس ایران با زمان آخرین دریافت</p></header>
+ <header class="mf-head"><button class="mf-close" id="mf-close" aria-label="برگشت به گزینه‌ها">↩ برگشت به گزینه‌ها</button><h2 id="mf-title">رادار بازارهای مالی</h2><p>قیمت طلا، دلار و شاخص بورس ایران با زمان آخرین دریافت</p></header>
  <div class="mf-body"><div id="mf-status" class="mf-note">برای دریافت آخرین داده‌ها، دکمه به‌روزرسانی را بزنید.</div><div class="mf-grid" id="mf-cards"></div>
  <div class="mf-actions"><button id="mf-refresh">↻ به‌روزرسانی قیمت‌ها</button><a href="https://www.tsetmc.com/" target="_blank" rel="noopener noreferrer">مشاهده بورس تهران ↗</a><a href="https://talasanj.info/" target="_blank" rel="noopener noreferrer">منبع قیمت طلا و دلار ↗</a></div>
  <p class="mf-note">قیمت طلا و دلار از طلاسنج دریافت می‌شود و با نام منبع نمایش داده می‌شود. شاخص بورس در صورت در دسترس بودن سرویس بازار نمایش داده خواهد شد؛ در غیر این صورت از لینک بورس تهران استفاده کنید. داده‌ها ممکن است با تأخیر همراه باشند و توصیه سرمایه‌گذاری نیستند.</p></div></section>`;
  document.body.appendChild(modal);
- const close=()=>modal.classList.remove('open');btn.onclick=()=>{modal.classList.add('open');loadFinance()};modal.querySelector('#mf-close').onclick=close;modal.addEventListener('click',e=>{if(e.target===modal)close()});modal.querySelector('#mf-refresh').onclick=loadFinance;
+ const close=()=>modal.classList.remove('open');btn.onclick=()=>{modal.classList.add('open');loadFinance()};modal.querySelector('#mf-close').onclick=close;modal.addEventListener('keydown',e=>{if(e.key==='Escape')close()});modal.addEventListener('click',e=>{if(e.target===modal)close()});modal.querySelector('#mf-refresh').onclick=loadFinance;
  const nf2=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2});
  function card(label,value,unit,change,updated){const ch=Number(change);const trend=Number.isFinite(ch)?' · '+(ch>0?'▲ ':ch<0?'▼ ':'')+nf2.format(ch)+'٪':'';return '<article class="mf-card"><small>'+label+'</small><b>'+value+'</b><span>'+unit+trend+(updated?' · '+updated:'')+'</span></article>'}
  async function loadFinance(){
