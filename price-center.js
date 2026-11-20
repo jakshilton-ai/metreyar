@@ -67,7 +67,7 @@ function initFinancialMarket(){
  #mt-finance{position:fixed;z-index:125;inset:0;background:#071727c9;display:none;align-items:center;justify-content:center;padding:12px;backdrop-filter:blur(8px)}
  #mt-finance.open{display:flex}.mf-panel{width:min(760px,100%);max-height:92vh;overflow:auto;border-radius:22px;background:var(--card,#fff);color:var(--tx,#18202b);border:1px solid var(--bd);box-shadow:0 24px 80px #0006}
  .mf-head{padding:22px;color:white;background:linear-gradient(110deg,#102b47,#087e8b);position:relative}.mf-head h2{margin:0;font-size:22px}.mf-head p{font-size:12px;margin:7px 0 0;color:#e4f5ff}
- .mf-close{position:absolute;left:14px;top:14px;border:1px solid #ffffff88;border-radius:50%;width:36px;height:36px;background:#ffffff20;color:white;font-size:20px}
+ .mf-close{position:absolute;left:12px;top:12px;border:1px solid #ffffff88;border-radius:10px;padding:7px 10px;background:#ffffff20;color:white;font:inherit;font-size:12px;line-height:1.5;cursor:pointer}
  .mf-body{padding:15px}.mf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
  .mf-card{border:1px solid var(--bd);border-radius:15px;padding:13px;background:var(--bg)}.mf-card small{color:var(--mut);display:block}.mf-card b{font-size:19px;display:block;margin:7px 0;overflow-wrap:anywhere}.mf-card span{font-size:11px;color:var(--mut)}
  .mf-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.mf-actions a,.mf-actions button{border:0;border-radius:10px;padding:10px 13px;background:var(--pri);color:var(--prc);font:inherit;text-decoration:none}
