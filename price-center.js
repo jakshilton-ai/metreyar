@@ -13,6 +13,29 @@ const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(_){
 const write=x=>{try{localStorage.setItem(KEY,JSON.stringify(x));return true}catch(_){alert('ذخیره‌سازی در این دستگاه ممکن نیست.');return false}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nf=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2});
+/* Public no-key fallback: used when the Metreyar proxy is unreachable. */
+async function mtPublicMarketFallback(){
+ const url='https://raw.githubusercontent.com/iran-market/iran-market.github.io/main/data/popular.json';
+ const response=await fetch(url,{cache:'no-store'});
+ if(!response.ok)throw new Error('منبع جایگزین بازار در دسترس نیست');
+ const payload=await response.json();
+ const rows=Array.isArray(payload.data)?payload.data:[];
+ const find=symbol=>rows.find(x=>x.symbol===symbol&&Number(x.price)>0);
+ const usd=find('USD_IRR_FREE'),gold=find('GOLD_18K_IRR');
+ if(!usd&&!gold)throw new Error('داده معتبر جایگزین وجود ندارد');
+ return {
+  prices:{
+   usd:usd?{price:usd.price,change_pct:usd.change_pct,updated_at:usd.timestamp_tehran||usd.checked_at}:null,
+   gram18:gold?{price:gold.price,change_pct:gold.change_pct,updated_at:gold.timestamp_tehran||gold.checked_at}:null
+  },
+  updated_at:payload.meta?.updated_at||payload.meta?.published_at||null,
+  stale:!!payload.meta?.stale||[usd,gold].filter(Boolean).some(x=>x.stale),
+  provider:'Iran Market Data (fallback)',
+  tedpix:null,
+  fallback:true
+ };
+}
+
 function init(){
  if(document.getElementById('mt-market-btn'))return;
  const css=document.createElement('style');
@@ -101,7 +124,19 @@ function initFinancialMarket(){
    if(data.tedpix&&data.tedpix.value)out.push(card('شاخص کل بورس تهران',fmt(data.tedpix.value),'واحد',data.tedpix.change_pct,data.tedpix.updated_at||''));
    host.innerHTML=out.join('')||'<p>داده‌ای از سرویس دریافت نشد.</p>';
    status.textContent='آخرین دریافت: '+(data.updated_at?new Date(data.updated_at).toLocaleString('fa-IR'):'زمان نامشخص')+' · منبع طلا و ارز: طلاسنج';
-  }catch(err){host.innerHTML='<article class="mf-card"><small>وضعیت دریافت</small><b>فعلاً داده زنده دریافت نشد</b><span>برای مشاهده مستقیم از پیوندهای منابع استفاده کنید.</span></article>';status.textContent=err.message||'خطا در دریافت اطلاعات.'}
+  }catch(err){
+   try{
+    const data=await mtPublicMarketFallback(),p=data.prices||{},out=[];
+    if(p.gram18)out.push(card('طلای ۱۸ عیار · هر گرم',fmt(p.gram18.price),'تومان',p.gram18.change_pct,p.gram18.updated_at||''));
+    if(p.usd)out.push(card('دلار آزاد',fmt(p.usd.price),'تومان',p.usd.change_pct,p.usd.updated_at||''));
+    out.push(card('شاخص کل بورس تهران','در این منبع موجود نیست','برای داده بورس اتصال مستقیم به منبع بورس لازم است','',''));
+    host.innerHTML=out.join('');
+    status.textContent='حالت جایگزین فعال · داده عمومی بازار؛ انتشار معمولاً هر ۳۰ دقیقه · '+(data.updated_at?new Date(data.updated_at).toLocaleString('fa-IR'):'زمان نامشخص');
+   }catch(fallbackError){
+    host.innerHTML='<article class="mf-card"><small>وضعیت دریافت</small><b>داده بازار در دسترس نیست</b><span>اتصال اینترنت یا سرویس‌های داده را بررسی کنید.</span></article>';
+    status.textContent='ارتباط با سرویس اصلی و جایگزین ناموفق بود.';
+   }
+  }
   finally{refresh.disabled=false}
  }
 }
@@ -150,8 +185,20 @@ function initMetreyarTicker(){
    state.textContent=d.stale?'آخرین داده ذخیره‌شده':'آنلاین';
    state.title=d.updated_at?'آخرین دریافت: '+new Date(d.updated_at).toLocaleString('fa-IR'):'';
   }catch(e){
-   track.innerHTML='<span class="mtt-item">قیمت زنده فعلاً در دسترس نیست؛ برای جلوگیری از نمایش نرخ اشتباه، عددی نشان داده نمی‌شود.</span>';
-   state.textContent='عدم اتصال';
+   try{
+    const d=await mtPublicMarketFallback(),p=d.prices||{},items=[];
+    if(p.gram18)items.push(item('طلای ۱۸ عیار',p.gram18.price,'تومان'));
+    if(p.usd)items.push(item('دلار آزاد',p.usd.price,'تومان'));
+    if(items.length){
+     const content=items.join('<span class="mtt-item" aria-hidden="true"> ◆ </span>');
+     track.innerHTML=content+content;
+     state.textContent='منبع جایگزین · با تأخیر';
+     state.title='به‌روزرسانی منبع: '+(d.updated_at||'نامشخص');
+    }else throw new Error('no fallback data');
+   }catch(fallbackError){
+    track.innerHTML='<span class="mtt-item">قیمت‌ها موقتاً در دسترس نیستند؛ نرخ قدیمی نمایش داده نمی‌شود.</span>';
+    state.textContent='عدم اتصال';
+   }
   }
  }
  refresh();setInterval(refresh,300000);
