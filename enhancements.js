@@ -151,46 +151,57 @@ function showRegs(){
  render();$('#mt-regq').addEventListener('input',e=>render(e.target.value));
 }
 function openPanel(which){overlay.classList.add('open');document.body.style.overflow='hidden';if(which==='calc')showCalc();if(which==='calendar')showCalendar();if(which==='regs')showRegs();translate(overlay)}
-let stack=[],currentIndex=0,lastNavigatedIndex=0;const originalSel=window.sel;
+// Single, predictable Android/browser Back controller.
+const originalSel=window.sel;
+let currentIndex=0;
+let lastGuardReason='';
+const pushBackGuard=(reason)=>{
+  history.pushState({metreyarBackGuard:true,reason},'',location.href);
+  lastGuardReason=reason;
+};
 if(typeof originalSel==='function'){
- window.sel=function(i){if(i!==currentIndex)stack.push(currentIndex);currentIndex=i;lastNavigatedIndex=i;originalSel(i);back.style.display=i===0?'none':'inline-block';history.pushState({metreyar:true,index:i},'','#section-'+i);translate(document.querySelector('#form'))};
- back.onclick=()=>{if(stack.length)history.back();else{originalSel(0);currentIndex=0;back.style.display='none'}};
- window.addEventListener('popstate',()=>{if(stack.length){currentIndex=stack.pop();originalSel(currentIndex);back.style.display=currentIndex===0?'none':'inline-block'}else if(currentIndex!==0){currentIndex=0;originalSel(0);back.style.display='none'}});
- // Android system Back: from any calculator/tool section, always return to the main menu.
- // The existing history handler runs first; this normalizes deeper navigation to Home.
- window.addEventListener('popstate',()=>{
-  if(currentIndex!==0){
-   stack.length=0;
-   currentIndex=0;
-   originalSel(0);
-   back.style.display='none';
-   translate(document.querySelector('#form'));
-  }
- });
+  window.sel=function(i){
+    currentIndex=Number(i)||0;
+    originalSel(i);
+    back.style.display=currentIndex===0?'none':'inline-block';
+    if(currentIndex!==0)pushBackGuard('tool-section');
+    translate(document.querySelector('#form'));
+  };
+  back.onclick=()=>{
+    if(currentIndex!==0){
+      originalSel(0);
+      currentIndex=0;
+      back.style.display='none';
+      translate(document.querySelector('#form'));
+    }
+  };
 }
-// Unified Android/browser Back handling for every tool, modal and section.
-(function installGlobalBackNavigation(){
- const pushGuard=()=>history.pushState({metreyarBackGuard:true},'',location.href);
- pushGuard();
- window.addEventListener('popstate',()=>{
-  const openLayers=[...document.querySelectorAll('.mt-overlay.open, #mt-finance.open, #mt-cloud-converter.open')];
-  const wasInTool=lastNavigatedIndex!==0;
+// Push a browser-history entry before opening any main tool or utility.
+document.addEventListener('click',event=>{
+  const target=event.target instanceof Element?event.target:null;
+  if(!target)return;
+  const navTarget=target.closest('.tile, #tabs button, #mt-extra button, #mt-finance-btn');
+  if(!navTarget)return;
+  if(navTarget.id==='mt-back')return;
+  pushBackGuard(navTarget.id||navTarget.textContent.trim().slice(0,40)||'navigation');
+},true);
+window.addEventListener('popstate',()=>{
+  const openLayers=[...document.querySelectorAll('.mt-overlay.open, #mt-finance.open, #mt-cloud-converter.open, .modal.open')];
   if(openLayers.length){
-   openLayers.forEach(layer=>layer.classList.remove('open'));
-   document.body.style.overflow='';
+    openLayers.forEach(layer=>layer.classList.remove('open'));
+    document.body.style.overflow='';
+    // Cloud converter is removed when closed to avoid leaving an invisible dialog.
+    const cloud=document.getElementById('mt-cloud-converter');
+    if(cloud)cloud.remove();
+    return;
   }
-  if(wasInTool && typeof originalSel==='function'){
-   stack.length=0;
-   currentIndex=0;
-   lastNavigatedIndex=0;
-   originalSel(0);
-   back.style.display='none';
-   translate(document.querySelector('#form'));
+  if(currentIndex!==0 && typeof originalSel==='function'){
+    originalSel(0);
+    currentIndex=0;
+    back.style.display='none';
+    translate(document.querySelector('#form'));
   }
-  // Back from any tool returns home; a further Back from home exits normally.
-  if(openLayers.length || wasInTool) pushGuard();
- });
-})();
+});
 const observer=new MutationObserver(records=>records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1)translate(n);else if(n.nodeType===3)translate(n.parentElement||document.body)})));
 observer.observe(document.body,{childList:true,subtree:true});
 translate();
