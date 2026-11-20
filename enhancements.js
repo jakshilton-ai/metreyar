@@ -41,7 +41,7 @@ const regsBtn=document.createElement('button');regsBtn.textContent='📚 آیی�
 bar.append(language,back,calendarBtn,calcBtn,regsBtn);
 const header=document.querySelector('header');if(header)header.insertAdjacentElement('afterend',bar);
 const overlay=document.createElement('div');overlay.className='mt-overlay';
-overlay.innerHTML='<section class="mt-dialog" role="dialog" aria-modal="true"><header><h2 id="mt-title"></h2><button id="mt-close" type="button">بستن ✕</button></header><div id="mt-body"></div></section>';
+overlay.innerHTML='<section class="mt-dialog" role="dialog" aria-modal="true"><header><h2 id="mt-title"></h2><button id="mt-close" type="button" aria-label="برگشت به گزینه‌ها">↩ برگشت به گزینه‌ها</button></header><div id="mt-body"></div></section>';
 document.body.appendChild(overlay);
 function closePanel(){overlay.classList.remove('open');document.body.style.overflow=''}
 document.getElementById('mt-close').onclick=closePanel;
