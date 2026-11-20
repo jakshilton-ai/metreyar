@@ -51,55 +51,122 @@ def cleanup(path: str):
         pass
 
 
-# Cached public financial quotes. The upstream free endpoint is intentionally polled
-# infrequently; never expose provider keys in the browser.
+# Cached public financial quotes. The primary fallback is a public JSON feed
+# that needs no API key; provider calls are server-side so the mobile browser never
+# needs a VPN or exposes credentials.
 _finance_cache = {"at": 0.0, "data": None}
 
 @app.get("/market/financial")
 async def financial_market():
     now = time.time()
-    api_key = os.getenv("TALASANJ_API_KEY", "").strip()
-    # With a free API key, refresh close to the provider's ~20-second update cycle.
-    # Without a key, retain a long cache to stay within the provider's testing quota.
-    cache_ttl = 20 if api_key else 3600
-    if _finance_cache["data"] is not None and now - _finance_cache["at"] < cache_ttl:
+    if _finance_cache["data"] is not None and now - _finance_cache["at"] < 180:
         return _finance_cache["data"]
+
     import httpx
-    result = {"ok": True, "provider": "Talasanj", "prices": {}, "updated_at": None}
-    headers = {"X-Client-Name": "Metreyar"}
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
-    async with httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=8.0)) as client:
+    result = {
+        "ok": True,
+        "provider": "Iran Market Data",
+        "prices": {},
+        "updated_at": None,
+        "sources": {},
+        "fallback": True,
+    }
+    timeout = httpx.Timeout(12.0, connect=6.0)
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+        # Public no-key JSON: gold 18K and free-market USD, refreshed by its publisher
+        # approximately every 30 minutes. Prices are already in toman (IRT).
         try:
-            response = await client.get("https://talasanj.info/api/v1/prices?unit=toman", headers=headers)
+            response = await client.get(
+                "https://raw.githubusercontent.com/iran-market/iran-market.github.io/main/data/popular.json",
+                headers={"Accept": "application/json", "User-Agent": "Metreyar/1.0"},
+            )
             response.raise_for_status()
             payload = response.json()
-            result["prices"] = payload.get("prices", {})
-            result["updated_at"] = payload.get("updated_at")
-            result["attribution"] = {"text": "قیمت‌ها از طلاسنج", "url": "https://talasanj.info"}
-            try:
-                tse = await client.get("https://cdn.tsetmc.com/api/MarketData/GetMarketOverview/0", headers={"User-Agent": "Mozilla/5.0"})
-                tse.raise_for_status()
-                overview = tse.json().get("marketOverview", {})
-                if isinstance(overview, list):
-                    overview = overview[0] if overview else {}
-                if isinstance(overview, dict) and overview.get("indexLastValue") is not None:
-                    result["tedpix"] = {
-                        "value": overview.get("indexLastValue"),
-                        "change_pct": overview.get("indexChange"),
-                        "updated_at": overview.get("dEven")
+            rows = payload.get("data", [])
+            by_symbol = {row.get("symbol"): row for row in rows if isinstance(row, dict)}
+            for symbol, key in (("USD_IRR_FREE", "usd"), ("GOLD_18K_IRR", "gram18")):
+                row = by_symbol.get(symbol)
+                if row and row.get("price") is not None and float(row["price"]) > 0:
+                    result["prices"][key] = {
+                        "price": row["price"],
+                        "change_pct": row.get("change_pct"),
+                        "updated_at": row.get("timestamp_tehran") or row.get("checked_at"),
                     }
-            except (httpx.HTTPError, ValueError, AttributeError):
+                    result["sources"][key] = row.get("source") or "Iran Market Data"
+            result["updated_at"] = (
+                payload.get("meta", {}).get("updated_at")
+                or payload.get("meta", {}).get("published_at")
+            )
+            result["stale"] = bool(payload.get("meta", {}).get("stale")) or any(
+                bool(row.get("stale")) for row in by_symbol.values()
+                if row.get("symbol") in ("USD_IRR_FREE", "GOLD_18K_IRR")
+            )
+        except (httpx.HTTPError, ValueError, TypeError, AttributeError):
+            pass
+
+        # Higher-frequency provider is optional. It is used only when an API key
+        # is configured; no-key requests stay on the public feed and avoid test quotas.
+        api_key = os.getenv("TALASANJ_API_KEY", "").strip()
+        if api_key:
+            try:
+                response = await client.get(
+                    "https://talasanj.info/api/v1/prices?unit=toman",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "X-Client-Name": "Metreyar",
+                        "X-Client-Url": "https://myket.ir/app/co.median.android.bnpraqo",
+                    },
+                )
+                response.raise_for_status()
+                payload = response.json()
+                live_prices = payload.get("prices", {})
+                for key in ("usd", "gram18", "gram24", "mazaneh", "ounce"):
+                    if live_prices.get(key) and live_prices[key].get("price") is not None:
+                        result["prices"][key] = live_prices[key]
+                        result["sources"][key] = "Talasanj"
+                result["updated_at"] = payload.get("updated_at") or result["updated_at"]
+                result["provider"] = "Talasanj + Iran Market Data"
+                result["fallback"] = False
+            except (httpx.HTTPError, ValueError, TypeError, AttributeError):
+                # Keep valid public-feed data if the optional provider is unavailable.
                 pass
-        except (httpx.HTTPError, ValueError):
-            if _finance_cache["data"] is not None:
-                stale = dict(_finance_cache["data"])
-                stale["stale"] = True
-                return stale
-            raise HTTPException(502, "دریافت قیمت طلا و ارز از منبع بازار ناموفق بود.")
-    _finance_cache["at"] = now
-    _finance_cache["data"] = result
-    return result
+
+        # TSETMC may restrict requests by server IP. Treat this as optional and
+        # never fail the gold/USD response if the stock endpoint is unreachable.
+        try:
+            tse = await client.get(
+                "https://cdn.tsetmc.com/api/MarketData/GetMarketOverview/0",
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; Metreyar/1.0)",
+                    "Referer": "https://www.tsetmc.com/",
+                },
+            )
+            tse.raise_for_status()
+            overview = tse.json().get("marketOverview", {})
+            if isinstance(overview, list):
+                overview = overview[0] if overview else {}
+            if isinstance(overview, dict) and overview.get("indexLastValue") is not None:
+                result["tedpix"] = {
+                    "value": overview.get("indexLastValue"),
+                    "change_pct": overview.get("indexChange"),
+                    "updated_at": overview.get("dEven"),
+                }
+                result["sources"]["tedpix"] = "TSETMC"
+        except (httpx.HTTPError, ValueError, AttributeError, TypeError):
+            result["tedpix_unavailable"] = True
+
+    if result["prices"]:
+        _finance_cache["at"] = now
+        _finance_cache["data"] = result
+        return result
+
+    if _finance_cache["data"] is not None:
+        stale = dict(_finance_cache["data"])
+        stale["stale"] = True
+        stale["warning"] = "منبع قیمت فعلاً پاسخ نمی‌دهد؛ آخرین داده ذخیره‌شده نمایش داده می‌شود."
+        return stale
+
+    raise HTTPException(502, "داده قیمت بازار از منابع اصلی و جایگزین دریافت نشد.")
 
 @app.get("/health")
 def health():
