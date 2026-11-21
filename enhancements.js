@@ -146,33 +146,66 @@ const REG_PDF_DB='metreyar-regulations-pdf-v1';
 function openRegPdfDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(REG_PDF_DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('pdfs'))req.result.createObjectStore('pdfs',{keyPath:'url'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
 async function getRegPdf(url){const db=await openRegPdfDb();return new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readonly'),r=tx.objectStore('pdfs').get(url);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error);tx.oncomplete=()=>db.close()})}
 async function saveRegPdf(url,title,onStatus){onStatus('در حال دریافت فایل برای ذخیره آفلاین…');const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('سرور فایل را برنگرداند ('+response.status+').');const bytes=await response.arrayBuffer();const signature=new TextDecoder().decode(bytes.slice(0,5));if(signature!=='%PDF-')throw new Error('پاسخ سایت فایل PDF نیست؛ ذخیره آفلاین انجام نشد.');const blob=new Blob([bytes],{type:'application/pdf'});if(blob.size<1000)throw new Error('فایل PDF معتبر به نظر نمی‌رسد.');const db=await openRegPdfDb();await new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readwrite');tx.objectStore('pdfs').put({url,title,blob,size:blob.size,savedAt:Date.now()});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close();onStatus('ذخیره شد؛ از این پس این فایل بدون اینترنت هم باز می‌شود.')}
+let regPdfJsPromise=null;
+function loadRegPdfJs(){
+ if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);
+ if(regPdfJsPromise)return regPdfJsPromise;
+ regPdfJsPromise=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');
+  script.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  script.onload=()=>{if(!window.pdfjsLib){reject(new Error('کتابخانه نمایش PDF بارگذاری نشد.'));return}window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';resolve(window.pdfjsLib)};
+  script.onerror=()=>reject(new Error('دریافت موتور نمایش PDF ناموفق بود؛ اتصال به CDN برقرار نشد.'));
+  document.head.appendChild(script);
+ });
+ return regPdfJsPromise;
+}
 async function openRegPdf(url,title){
  const body=$('#mt-body');
- body.innerHTML='<button type="button" id="mt-reg-back">↩ بازگشت به فهرست مباحث</button><p id="mt-reg-pdf-title"></p><div id="mt-reg-pdf-status" class="mt-result">در حال باز کردن فایل PDF…</div><button type="button" id="mt-reg-save">ذخیره PDF برای استفاده آفلاین</button><iframe id="mt-reg-pdf-frame" title="نمایش مستقیم PDF مبحث" style="display:block;width:100%;height:72vh;border:1px solid var(--bd);border-radius:10px;background:white"></iframe>';
+ body.innerHTML='<button type="button" id="mt-reg-back">↩ بازگشت به فهرست مباحث</button><p id="mt-reg-pdf-title"></p><div id="mt-reg-pdf-status" class="mt-result">در حال آماده‌سازی نمایشگر PDF…</div><div id="mt-reg-toolbar" style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:10px 0"><button type="button" id="mt-reg-prev">صفحه قبل</button><span id="mt-reg-page">۱ / ۱</span><button type="button" id="mt-reg-next">صفحه بعد</button><button type="button" id="mt-reg-zoomout">−</button><button type="button" id="mt-reg-zoomin">+</button></div><button type="button" id="mt-reg-save">ذخیره PDF برای استفاده آفلاین</button><div style="width:100%;height:68vh;overflow:auto;background:#525659;border-radius:10px;margin-top:10px;text-align:center"><canvas id="mt-reg-canvas" style="max-width:100%;height:auto;background:white;margin:8px auto;box-shadow:0 1px 5px #222"></canvas></div>';
  $('#mt-reg-pdf-title').textContent=title;
  $('#mt-reg-back').onclick=showRegs;
- const status=$('#mt-reg-pdf-status'),frame=$('#mt-reg-pdf-frame'),save=$('#mt-reg-save');
+ const status=$('#mt-reg-pdf-status'),save=$('#mt-reg-save'),canvas=$('#mt-reg-canvas'),ctx=canvas.getContext('2d');
+ let pdf=null,page=1,scale=1.15,renderTask=null;
+ const pageLabel=$('#mt-reg-page');
+ async function drawPage(){
+  if(!pdf)return;
+  if(renderTask){try{renderTask.cancel()}catch(e){}}
+  const p=await pdf.getPage(page),viewport=p.getViewport({scale});
+  const maxWidth=Math.max(260,body.clientWidth-32),fit=Math.min(1,maxWidth/viewport.width);
+  const finalViewport=p.getViewport({scale:scale*fit});
+  canvas.width=Math.ceil(finalViewport.width);canvas.height=Math.ceil(finalViewport.height);
+  renderTask=p.render({canvasContext:ctx,viewport:finalViewport});
+  await renderTask.promise;
+  pageLabel.textContent=page+' / '+pdf.numPages;
+  $('#mt-reg-prev').disabled=page<=1;$('#mt-reg-next').disabled=page>=pdf.numPages;
+ }
+ $('#mt-reg-prev').onclick=async()=>{if(pdf&&page>1){page--;await drawPage()}};
+ $('#mt-reg-next').onclick=async()=>{if(pdf&&page<pdf.numPages){page++;await drawPage()}};
+ $('#mt-reg-zoomin').onclick=async()=>{scale=Math.min(3,scale+0.2);await drawPage()};
+ $('#mt-reg-zoomout').onclick=async()=>{scale=Math.max(0.6,scale-0.2);await drawPage()};
  try{
-  const saved=await getRegPdf(url);
+  const lib=await loadRegPdfJs();
+  const saved=await getRegPdf(url).catch(()=>null);
   if(saved){
-   frame.src=URL.createObjectURL(saved.blob);
-   status.textContent='نسخه ذخیره‌شده روی دستگاه؛ بدون اینترنت هم باز می‌شود.';
-   save.textContent='✓ قبلاً برای آفلاین ذخیره شده';
-   save.disabled=true;
-   return;
+   pdf=await lib.getDocument({data:await saved.blob.arrayBuffer()}).promise;
+   status.textContent='نسخه ذخیره‌شده روی دستگاه؛ آماده نمایش آفلاین.';
+   save.textContent='✓ قبلاً برای آفلاین ذخیره شده';save.disabled=true;
+  }else{
+   status.textContent='در حال دریافت PDF از منبع اصلی…';
+   pdf=await lib.getDocument({url,withCredentials:false}).promise;
+   status.textContent='PDF مستقیماً در نمایشگر داخلی متره‌یار باز شد.';
   }
- }catch(e){}
- // Load the original PDF URL directly; the Google Docs viewer is blocked in some Android WebViews/networks.
- frame.src=url;
- status.textContent='در حال بارگذاری مستقیم فایل PDF از منبع اصلی…';
- frame.onload=()=>{status.textContent='درخواست نمایش PDF به منبع اصلی ارسال شد.';};
+  await drawPage();
+ }catch(e){
+  status.textContent='نمایش PDF ناموفق بود: '+(e&&e.message?e.message:'خطای ناشناخته')+'. اگر خطا مربوط به CORS یا دسترسی شبکه باشد، میزبان فایل اجازه دریافت مستقیم از برنامه را نمی‌دهد.';
+ }
  save.onclick=async()=>{
   save.disabled=true;
   try{
    await saveRegPdf(url,title,msg=>status.textContent=msg);
    save.textContent='✓ ذخیره شد برای آفلاین';
   }catch(e){
-   status.textContent='ذخیره آفلاین انجام نشد: '+(e.message||'میزبان اجازه دریافت مستقیم فایل را نداد.');
+   status.textContent='ذخیره آفلاین ناموفق: '+(e.message||'خطای دسترسی یا محدودیت CORS');
    save.disabled=false;
   }
  };
