@@ -1,4 +1,4 @@
-const CACHE='metreyar-v35';
+const CACHE='metreyar-v36';
 const FILES=['./','./index.html','./manifest.json','./pro-tools.js','./enhancements.js','./price-center.js','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));
@@ -10,7 +10,7 @@ self.addEventListener('fetch',e=>{
   const r=e.request;
   if(r.method!=='GET'||new URL(r.url).origin!==location.origin)return;
   const url=new URL(r.url);
-  const freshAsset=r.mode==='navigate'||/\\.(?:html|js|css|json)$/.test(url.pathname);
+  const freshAsset=r.mode==='navigate'||/\.(?:html|js|css|json)$/.test(url.pathname);
   if(freshAsset){
     e.respondWith(fetch(r).then(res=>{
       if(res&&res.ok)caches.open(CACHE).then(c=>c.put(r,res.clone()));
