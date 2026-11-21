@@ -162,9 +162,10 @@ async function openRegPdf(url,title){
    return;
   }
  }catch(e){}
- // Render the remote PDF in an embedded PDF viewer instead of navigating to the host's download response.
- frame.src='https://docs.google.com/gview?embedded=1&url='+encodeURIComponent(url);
- status.textContent='فایل PDF در نمایشگر داخل برنامه باز می‌شود؛ برای بار اول اتصال اینترنت لازم است.';
+ // Load the original PDF URL directly; the Google Docs viewer is blocked in some Android WebViews/networks.
+ frame.src=url;
+ status.textContent='در حال بارگذاری مستقیم فایل PDF از منبع اصلی…';
+ frame.onload=()=>{status.textContent='درخواست نمایش PDF به منبع اصلی ارسال شد.';};
  save.onclick=async()=>{
   save.disabled=true;
   try{
