@@ -187,7 +187,7 @@ function showRegs(){
   regulations.filter(r=>r.join(' ').includes(q.trim())).forEach(r=>{
    const d=document.createElement('details'),s=document.createElement('summary'),p=document.createElement('p'),m=document.createElement('div'),links=document.createElement('div');
    s.textContent='مبحث '+r[0]+' – '+r[1]+'  |  باز کردن PDF';s.style.cursor='pointer';s.addEventListener('click',ev=>{ev.preventDefault();openRegPdf(r[4],'مبحث '+r[0]+' – '+r[1]+' | PDF اصلی')});m.className='mt-reg-meta';m.textContent='ویرایش درج‌شده در کتابخانه: '+r[2];p.textContent=r[3];links.className='mt-reg-links';
-   [[r[4],'PDF اصلی'],[r[5],'اصلاحیه / پیوست']].filter(x=>x[0]).forEach(([url,label])=>{
+   [[r[4],'PDF اصلی']].filter(x=>x[0]).forEach(([url,label])=>{
     const group=document.createElement('div');group.className='mt-file-item';
     const name=document.createElement('b');name.textContent=label;
     const actions=document.createElement('div');actions.className='mt-file-actions';
