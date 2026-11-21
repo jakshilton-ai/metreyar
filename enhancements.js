@@ -169,12 +169,21 @@ function showRegs(){
     const group=document.createElement('div');group.className='mt-file-item';
     const name=document.createElement('b');name.textContent=label;
     const actions=document.createElement('div');actions.className='mt-file-actions';
-    const view=document.createElement('button');view.type='button';view.textContent='مشاهده داخل برنامه';view.onclick=()=>openRegPdf(url,'مبحث '+r[0]+' – '+r[1]+' | '+label);
-    const save=document.createElement('button');save.type='button';save.textContent='ذخیره برای آفلاین';
-    const state=document.createElement('small');state.textContent='بررسی وضعیت ذخیره‌سازی…';
-    statusFor(url).then(ok=>{state.textContent=ok?'✓ روی دستگاه ذخیره شده':'هنوز ذخیره نشده'});
-    save.onclick=async()=>{save.disabled=true;try{await saveRegPdf(url,'مبحث '+r[0]+' – '+r[1],msg=>state.textContent=msg);save.textContent='✓ ذخیره شد'}catch(e){state.textContent='ذخیره نشد: '+(e.message||'خطای دسترسی یا محدودیت CORS');save.disabled=false}};
-    actions.append(view,save);group.append(name,state,actions);links.appendChild(group);
+    const isPdf=/\.pdf(?:$|[?#])/i.test(url);
+    const state=document.createElement('small');
+    if(isPdf){
+     const view=document.createElement('button');view.type='button';view.textContent='مشاهده PDF';view.onclick=()=>openRegPdf(url,'مبحث '+r[0]+' – '+r[1]+' | '+label);
+     const save=document.createElement('button');save.type='button';save.textContent='ذخیره برای آفلاین';
+     state.textContent='بررسی وضعیت ذخیره‌سازی…';
+     statusFor(url).then(ok=>{state.textContent=ok?'✓ روی دستگاه ذخیره شده':'هنوز ذخیره نشده'});
+     save.onclick=async()=>{save.disabled=true;try{await saveRegPdf(url,'مبحث '+r[0]+' – '+r[1],msg=>state.textContent=msg);save.textContent='✓ ذخیره شد'}catch(e){state.textContent='ذخیره نشد: '+(e.message||'خطای دسترسی یا محدودیت CORS');save.disabled=false}};
+     actions.append(view,save);
+    }else{
+     const view=document.createElement('a');view.href=url;view.target='_blank';view.rel='noopener noreferrer';view.className='mt-reg-link';view.textContent='بازکردن صفحه دانلود در ATNasr ↗';
+     state.textContent='برای دریافت نسخه PDF، از فهرست همان سایت استفاده کنید. ذخیره مستقیم آفلاین از این صفحه هنوز فعال نیست.';
+     actions.append(view);
+    }
+    group.append(name,state,actions);links.appendChild(group);
    });
    d.append(s,m,p,links);list.appendChild(d);
   });
