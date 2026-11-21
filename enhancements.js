@@ -147,12 +147,34 @@ function openRegPdfDb(){return new Promise((resolve,reject)=>{const req=indexedD
 async function getRegPdf(url){const db=await openRegPdfDb();return new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readonly'),r=tx.objectStore('pdfs').get(url);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error);tx.oncomplete=()=>db.close()})}
 async function saveRegPdf(url,title,onStatus){onStatus('در حال دریافت فایل برای ذخیره آفلاین…');const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('سرور فایل را برنگرداند ('+response.status+').');const bytes=await response.arrayBuffer();const signature=new TextDecoder().decode(bytes.slice(0,5));if(signature!=='%PDF-')throw new Error('پاسخ سایت فایل PDF نیست؛ ذخیره آفلاین انجام نشد.');const blob=new Blob([bytes],{type:'application/pdf'});if(blob.size<1000)throw new Error('فایل PDF معتبر به نظر نمی‌رسد.');const db=await openRegPdfDb();await new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readwrite');tx.objectStore('pdfs').put({url,title,blob,size:blob.size,savedAt:Date.now()});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close();onStatus('ذخیره شد؛ از این پس این فایل بدون اینترنت هم باز می‌شود.')}
 async function openRegPdf(url,title){
- const body=$('#mt-body');body.innerHTML='<button type="button" id="mt-reg-back">↩ بازگشت به فهرست مباحث</button><p id="mt-reg-pdf-title"></p><div id="mt-reg-pdf-status" class="mt-result">در حال آماده‌سازی نمایشگر PDF…</div><iframe id="mt-reg-pdf-frame" title="نمایش PDF مبحث" style="display:block;width:100%;height:66vh;border:1px solid var(--bd);border-radius:10px;background:white"></iframe>';
- $('#mt-reg-pdf-title').textContent=title;$('#mt-reg-back').onclick=showRegs;
- const status=$('#mt-reg-pdf-status'),frame=$('#mt-reg-pdf-frame');
- try{const saved=await getRegPdf(url);if(saved){const objectUrl=URL.createObjectURL(saved.blob);frame.src=objectUrl;status.textContent='نسخه ذخیره‌شده روی همین دستگاه؛ قابل مشاهده بدون اینترنت.';return}}
- catch(e){}
- frame.src=url;status.textContent='نمایش نسخه آنلاین؛ برای استفاده آفلاین، از فهرست گزینه «ذخیره برای آفلاین» را بزنید.';
+ const body=$('#mt-body');
+ body.innerHTML='<button type="button" id="mt-reg-back">↩ بازگشت به فهرست مباحث</button><p id="mt-reg-pdf-title"></p><div id="mt-reg-pdf-status" class="mt-result">در حال باز کردن فایل PDF…</div><button type="button" id="mt-reg-save">ذخیره PDF برای استفاده آفلاین</button><iframe id="mt-reg-pdf-frame" title="نمایش مستقیم PDF مبحث" style="display:block;width:100%;height:72vh;border:1px solid var(--bd);border-radius:10px;background:white"></iframe>';
+ $('#mt-reg-pdf-title').textContent=title;
+ $('#mt-reg-back').onclick=showRegs;
+ const status=$('#mt-reg-pdf-status'),frame=$('#mt-reg-pdf-frame'),save=$('#mt-reg-save');
+ try{
+  const saved=await getRegPdf(url);
+  if(saved){
+   frame.src=URL.createObjectURL(saved.blob);
+   status.textContent='نسخه ذخیره‌شده روی دستگاه؛ بدون اینترنت هم باز می‌شود.';
+   save.textContent='✓ قبلاً برای آفلاین ذخیره شده';
+   save.disabled=true;
+   return;
+  }
+ }catch(e){}
+ // Render the remote PDF in an embedded PDF viewer instead of navigating to the host's download response.
+ frame.src='https://docs.google.com/gview?embedded=1&url='+encodeURIComponent(url);
+ status.textContent='فایل PDF در نمایشگر داخل برنامه باز می‌شود؛ برای بار اول اتصال اینترنت لازم است.';
+ save.onclick=async()=>{
+  save.disabled=true;
+  try{
+   await saveRegPdf(url,title,msg=>status.textContent=msg);
+   save.textContent='✓ ذخیره شد برای آفلاین';
+  }catch(e){
+   status.textContent='ذخیره آفلاین انجام نشد: '+(e.message||'میزبان اجازه دریافت مستقیم فایل را نداد.');
+   save.disabled=false;
+  }
+ };
 }
 function showRegs(){
  $('#mt-title').textContent='فهرست مباحث مقررات ملی ساختمان';
@@ -164,7 +186,7 @@ function showRegs(){
   list.innerHTML='';
   regulations.filter(r=>r.join(' ').includes(q.trim())).forEach(r=>{
    const d=document.createElement('details'),s=document.createElement('summary'),p=document.createElement('p'),m=document.createElement('div'),links=document.createElement('div');
-   s.textContent='مبحث '+r[0]+' – '+r[1];m.className='mt-reg-meta';m.textContent='ویرایش درج‌شده در کتابخانه: '+r[2];p.textContent=r[3];links.className='mt-reg-links';
+   s.textContent='مبحث '+r[0]+' – '+r[1]+'  |  باز کردن PDF';s.style.cursor='pointer';s.addEventListener('click',ev=>{ev.preventDefault();openRegPdf(r[4],'مبحث '+r[0]+' – '+r[1]+' | PDF اصلی')});m.className='mt-reg-meta';m.textContent='ویرایش درج‌شده در کتابخانه: '+r[2];p.textContent=r[3];links.className='mt-reg-links';
    [[r[4],'PDF اصلی'],[r[5],'اصلاحیه / پیوست']].filter(x=>x[0]).forEach(([url,label])=>{
     const group=document.createElement('div');group.className='mt-file-item';
     const name=document.createElement('b');name.textContent=label;
