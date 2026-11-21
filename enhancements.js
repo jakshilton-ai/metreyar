@@ -117,37 +117,52 @@ function showCalendar(){
  fromGregorian();
 }
 const regulations=[
-['۱','تعاریف','۱۳۹۲','اصطلاحات و تعاریف پایه مورد استفاده در مقررات ملی ساختمان.'],
-['۲','نظامات اداری','۱۳۸۴','مسئولیت‌ها، صلاحیت‌ها، فرآیندهای اداری و کنترل ساختمان.'],
-['۳','حفاظت ساختمان‌ها در مقابل حریق','۱۳۹۵','الزامات ایمنی حریق، راه‌های خروج و حفاظت اجزای ساختمان.'],
-['۴','الزامات عمومی ساختمان‌ها','۱۴۰۳','الزامات عمومی معماری، ابعاد، فضاها و دسترسی‌ها.'],
-['۵','مصالح و فرآورده‌های ساختمانی','۱۳۹۶','ویژگی‌ها و معیارهای پذیرش مصالح و فرآورده‌ها.'],
-['۶','بارهای وارد بر ساختمان','۱۳۹۸','بارهای مرده، زنده، برف، باد و ترکیب بارها.'],
-['۷','ژئوتکنیک و مهندسی پی','۱۴۰۰','شناسایی زمین، مطالعات ژئوتکنیک و طراحی پی.'],
-['۸','طرح و اجرای ساختمان‌های با مصالح بنایی','۱۳۹۸','ضوابط طراحی و اجرای سازه‌های بنایی.'],
-['۹','طرح و اجرای ساختمان‌های بتن‌آرمه','۱۳۹۹','ضوابط طراحی و اجرای اعضای بتن‌آرمه.'],
-['۱۰','طرح و اجرای ساختمان‌های فولادی','۱۴۰۱','ضوابط طراحی، اتصالات و اجرای سازه‌های فولادی.'],
-['۱۱','طرح و اجرای صنعتی ساختمان‌ها','۱۴۰۰','الزامات صنعتی‌سازی و روش‌های نوین ساخت.'],
-['۱۲','ایمنی و حفاظت کار در حین اجرا','۱۴۰۳','ایمنی کارگاه، حفاظت کارکنان و عملیات اجرایی.'],
-['۱۳','طرح و اجرای تأسیسات برقی ساختمان‌ها','۱۳۹۵','طراحی و اجرای تأسیسات الکتریکی ساختمان.'],
-['۱۴','تأسیسات مکانیکی','۱۳۹۶','طراحی و اجرای سامانه‌های مکانیکی ساختمان.'],
-['۱۵','آسانسورها و پلکان برقی','۱۳۹۲','الزامات نصب، ایمنی و بهره‌برداری آسانسور و پله‌برقی.'],
-['۱۶','تأسیسات بهداشتی','۱۳۹۶','آب‌رسانی، فاضلاب و تجهیزات بهداشتی.'],
-['۱۷','سامانه گاز طبیعی در ساختمان','۱۴۰۳','طراحی و اجرای لوله‌کشی و سامانه گاز طبیعی.'],
-['۱۸','عایق‌بندی و تنظیم صدا','۱۳۹۶','کنترل انتقال صدا و الزامات آکوستیکی.'],
-['۱۹','صرفه‌جویی در مصرف انرژی','۱۴۰۴','الزامات پوسته، تأسیسات و مدیریت مصرف انرژی.'],
-['۲۰','علائم و تابلوها','۱۳۹۶','علائم ایمنی، تابلوها و نشانه‌گذاری ساختمان.'],
-['۲۱','پدافند غیرعامل','۱۳۹۵','الزامات کاهش آسیب‌پذیری و تداوم عملکرد ساختمان.'],
-['۲۲','مراقبت و نگهداری ساختمان‌ها','۱۳۹۲','بازرسی، نگهداری و ایمنی در دوره بهره‌برداری.'],
-['۲۳','الزامات ترافیکی ساختمان‌ها','۱۴۰۱','الزامات پارکینگ، دسترسی و ترافیک ساختمان.'],
-['۲۴','انطباق شهری ساختمان','۱۴۰۴','طبقه، تراکم، ارتفاع، سطح اشغال، استقرار و انطباق با سیمای شهری.']
+['۱','تعاریف','۱۳۹۲','اصطلاحات و تعاریف پایه مورد استفاده در مقررات ملی ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-01-definitions-v1-1392.pdf'],
+['۲','نظامات اداری','۱۳۸۴','مسئولیت‌ها، صلاحیت‌ها، فرآیندهای اداری و کنترل ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-02-administrative-systems-v1-1384.pdf'],
+['۳','حفاظت ساختمان‌ها در مقابل حریق','۱۳۹۵','الزامات ایمنی حریق، راه‌های خروج و حفاظت اجزای ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-03-fire-protection-v3-1395.pdf','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-03-fire-protection-v3-1395-corrigendum.pdf'],
+['۴','الزامات عمومی ساختمان‌ها','۱۳۹۶','الزامات عمومی معماری، ابعاد، فضاها و دسترسی‌ها.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-04-general-building-requirements-v3-1396.pdf','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-04-security-protection-mandatory-addendum-1403.pdf'],
+['۵','مصالح و فرآورده‌های ساختمانی','۱۳۹۶','ویژگی‌ها و معیارهای پذیرش مصالح و فرآورده‌ها.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-05-building-materials-v5-1396.pdf'],
+['۶','بارهای وارد بر ساختمان','۱۳۹۸','بارهای مرده، زنده، برف، باد و ترکیب بارها.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-06-building-loads-v4-1398.pdf'],
+['۷','ژئوتکنیک و مهندسی پی','۱۴۰۰','شناسایی زمین، مطالعات ژئوتکنیک و طراحی پی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-07-geotechnical-foundation-v4-1400.pdf'],
+['۸','طرح و اجرای ساختمان‌های با مصالح بنایی','۱۳۹۸','ضوابط طراحی و اجرای سازه‌های بنایی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-08-masonry-buildings-v3-1398.pdf'],
+['۹','طرح و اجرای ساختمان‌های بتن‌آرمه','۱۳۹۹','ضوابط طراحی و اجرای اعضای بتن‌آرمه.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-09-reinforced-concrete-v5-1399.pdf','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-09-reinforced-concrete-v5-1399-corrigendum.pdf'],
+['۱۰','طرح و اجرای ساختمان‌های فولادی','۱۴۰۱','ضوابط طراحی، اتصالات و اجرای سازه‌های فولادی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-10-steel-buildings-v5-1401.pdf'],
+['۱۱','طرح و اجرای صنعتی ساختمان‌ها','۱۴۰۰','الزامات صنعتی‌سازی و روش‌های نوین ساخت.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-11-industrialized-buildings-v3-1400.pdf'],
+['۱۲','ایمنی و حفاظت کار در حین اجرا','۱۴۰۳','ایمنی کارگاه، حفاظت کارکنان و عملیات اجرایی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-12-construction-safety-v5-1403.pdf'],
+['۱۳','طرح و اجرای تأسیسات برقی ساختمان‌ها','۱۳۹۵','طراحی و اجرای تأسیسات الکتریکی ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-13-electrical-installations-v3-1395.pdf'],
+['۱۴','تأسیسات مکانیکی','۱۳۹۶','طراحی و اجرای سامانه‌های مکانیکی ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-14-mechanical-installations-v3-1396.pdf'],
+['۱۵','آسانسورها و پلکان برقی','۱۳۹۲','الزامات نصب، ایمنی و بهره‌برداری آسانسور و پله‌برقی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-15-elevators-escalators-v3-1392.pdf'],
+['۱۶','تأسیسات بهداشتی','۱۳۹۶','آب‌رسانی، فاضلاب و تجهیزات بهداشتی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-16-sanitary-installations-v4-1396.pdf'],
+['۱۷','سامانه گاز طبیعی در ساختمان','۱۴۰۳','طراحی و اجرای لوله‌کشی و سامانه گاز طبیعی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-17-natural-gas-systems-v5-1403.pdf'],
+['۱۸','عایق‌بندی و تنظیم صدا','۱۳۹۶','کنترل انتقال صدا و الزامات آکوستیکی.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-18-sound-insulation-v3-1396.pdf'],
+['۱۹','مدیریت انرژی در ساختمان','۱۴۰۴','الزامات پوسته، تأسیسات و مدیریت مصرف انرژی؛ برای دوره گذار، ابلاغیه‌های جاری را نیز بررسی کنید.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-19-energy-management-v5-1404.pdf'],
+['۲۰','علائم و تابلوها','۱۳۹۶','علائم ایمنی، تابلوها و نشانه‌گذاری ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-20-signs-v2-1396.pdf'],
+['۲۱','پدافند غیرعامل','۱۳۹۵','الزامات کاهش آسیب‌پذیری و تداوم عملکرد ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-21-passive-defense-v2-1395.pdf'],
+['۲۲','مراقبت و نگهداری ساختمان‌ها','۱۳۹۲','بازرسی، نگهداری و ایمنی در دوره بهره‌برداری.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-22-building-maintenance-v1-1392.pdf'],
+['۲۳','الزامات ترافیکی ساختمان‌ها','۱۴۰۱','الزامات پارکینگ، دسترسی و ترافیک ساختمان.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-23-traffic-requirements-v1-1401.pdf'],
+['۲۴','انطباق شهری ساختمان','۱۴۰۴','طبقه، تراکم، ارتفاع، سطح اشغال، استقرار و انطباق با سیمای شهری.','https://niazit-ceiling.com/wp-content/uploads/2026/08/iran-building-code-24-urban-building-compliance-v1-1404.pdf']
 ];
 function showRegs(){
  $('#mt-title').textContent='فهرست مباحث مقررات ملی ساختمان';
  const body=$('#mt-body');
- body.innerHTML='<p>فهرست ۲۴ مبحث به همراه موضوع و سال ویرایش درج‌شده برای راهنمایی اولیه. سال ویرایش یا اصلاحیه لازم‌الاجرا ممکن است تغییر کند؛ پیش از طراحی، اجرا یا استناد حقوقی، آخرین ابلاغیه رسمی را بررسی کنید.</p><input id="mt-regq" placeholder="جست‌وجوی مبحث..." style="width:100%"><div id="mt-reglist"></div><div class="mt-result">این بخش متن کامل آیین‌نامه یا جایگزین نسخه رسمی و اصلاحیه‌های ابلاغی نیست. فایل‌های دارای حق نشر نیز بدون مجوز در برنامه بازنشر نمی‌شوند.</div><a class="mt-reg-link" href="https://inbr.ir/" target="_blank" rel="noopener">مشاهده مرجع رسمی مقررات ملی ساختمان ↗</a>';
+ body.innerHTML='<p>دسترسی به فایل PDF هر ۲۴ مبحث در این فهرست فراهم شده است. فایل‌ها روی میزبان بیرونی قرار دارند و برای باز شدن به اینترنت نیاز دارند؛ برای نگهداری آفلاین، پس از باز شدن PDF آن را در دستگاه ذخیره کنید.</p><input id="mt-regq" placeholder="جست‌وجوی مبحث..." style="width:100%"><div id="mt-reglist"></div><div class="mt-result">توجه: لینک‌های PDF زیر از یک کتابخانه بیرونی دریافت شده‌اند و به معنی تأیید رسمی یا مجوز بازنشر آن‌ها نیستند. پیش از استناد فنی یا حقوقی، آخرین ویرایش، اصلاحیه‌ها و پیوست‌های لازم‌الاجرا را از دفتر مقررات ملی و کنترل ساختمان بررسی کنید.</div><a class="mt-reg-link" href="https://inbr.ir/" target="_blank" rel="noopener noreferrer">ورود به وب‌سایت دفتر مقررات ملی و کنترل ساختمان ↗</a>';
  const list=$('#mt-reglist');
- function render(q=''){list.innerHTML='';regulations.filter(r=>r.join(' ').includes(q.trim())).forEach(r=>{const d=document.createElement('details'),s=document.createElement('summary'),p=document.createElement('p'),m=document.createElement('div');s.textContent='مبحث '+r[0]+' – '+r[1];m.className='mt-reg-meta';m.textContent='ویرایش درج‌شده: '+r[2];p.textContent=r[3];d.append(s,m,p);list.appendChild(d)})}
+ function addLink(host,label,url){
+  if(!url)return;
+  const a=document.createElement('a');a.className='mt-reg-link';a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=label+' ↗';host.appendChild(a);
+ }
+ function render(q=''){
+  list.innerHTML='';
+  regulations.filter(r=>r.join(' ').includes(q.trim())).forEach(r=>{
+   const d=document.createElement('details'),s=document.createElement('summary'),p=document.createElement('p'),m=document.createElement('div'),links=document.createElement('div');
+   s.textContent='مبحث '+r[0]+' – '+r[1];
+   m.className='mt-reg-meta';m.textContent='ویرایش درج‌شده در کتابخانه: '+r[2];
+   p.textContent=r[3];links.className='mt-reg-links';
+   addLink(links,'مشاهده / دریافت PDF کامل',r[4]);
+   addLink(links,'اصلاحیه یا پیوست تکمیلی',r[5]);
+   d.append(s,m,p,links);list.appendChild(d);
+  });
+ }
  render();$('#mt-regq').addEventListener('input',e=>render(e.target.value));
 }
 function openPanel(which){overlay.classList.add('open');document.body.style.overflow='hidden';if(which==='calc')showCalc();if(which==='calendar')showCalendar();if(which==='regs')showRegs();translate(overlay)}
